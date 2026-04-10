@@ -29,6 +29,10 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   plugins: [
@@ -37,17 +41,18 @@ module.exports = {
       filename: 'remoteEntry.js',
       remotes: {
         mfeCommands: 'mfeCommands@http://localhost:3001/remoteEntry.js',
+        mfeSettings: 'mfeSettings@http://localhost:3002/remoteEntry.js',
       },
       shared: {
         react: {
           singleton: true,
           requiredVersion: deps.react,
-          eager: false,
+          eager: true,
         },
         'react-dom': {
           singleton: true,
           requiredVersion: deps['react-dom'],
-          eager: false,
+          eager: true,
         },
       },
     }),

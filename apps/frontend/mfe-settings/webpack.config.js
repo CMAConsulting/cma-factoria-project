@@ -10,7 +10,7 @@ module.exports = {
     static: {
       directory: path.join(__dirname, 'dist'),
     },
-    port: 3001,
+    port: 3002,
     historyApiFallback: true,
     hot: true,
     headers: {
@@ -40,10 +40,10 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: 'mfeCommands',
+      name: 'mfeSettings',
       filename: 'remoteEntry.js',
       exposes: {
-        './CommandsApp': './src/App',
+        './SettingsApp': './src/App',
       },
       shared: {
         react: {

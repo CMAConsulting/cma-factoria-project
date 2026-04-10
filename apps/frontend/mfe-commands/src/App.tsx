@@ -1,21 +1,30 @@
 import { useState, useEffect } from 'react';
 import { 
-  CommandResponse, 
-  CommandRequest, 
-  CommandsApi,
-  Configuration 
+  listCommands, 
+  executeCommand, 
+  createClient,
+  type CommandRequest,
+  type CommandResponse
 } from '@cma-factoria/shared-api';
+import './App.css';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:8080';
+
+const client = createClient({
+  baseUrl: API_URL,
+});
+
+const statusColors: Record<string, string> = {
+  pending: '#eab308',
+  processing: '#ff6b35',
+  completed: '#22c55e',
+  failed: '#ef4444',
+};
 
 export default function CommandsApp() {
   const [commands, setCommands] = useState<CommandResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Configure API client
-  const apiConfig = new Configuration({ basePath: API_URL });
-  const commandsApi = new CommandsApi(apiConfig);
 
   useEffect(() => {
     fetchCommands();
@@ -24,8 +33,8 @@ export default function CommandsApp() {
   const fetchCommands = async () => {
     try {
       setLoading(true);
-      const response = await commandsApi.listCommands();
-      setCommands(response.data.items || []);
+      const response = await listCommands({ client });
+      setCommands(response.data?.items || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -33,45 +42,70 @@ export default function CommandsApp() {
     }
   };
 
-  const createCommand = async () => {
+  const createNewCommand = async () => {
     try {
       const request: CommandRequest = {
-        command: 'test-' + Date.now(),
-        payload: { environment: 'staging' },
+        command: 'deploy-' + Date.now(),
+        payload: { environment: 'staging', version: '1.0.0' },
         metadata: { source: 'mfe-commands' }
       };
-      await commandsApi.executeCommand(request);
+      await executeCommand({ client, body: request });
       fetchCommands();
     } catch (err) {
       console.error('Error creating command:', err);
     }
   };
 
-  if (loading) return <div>Cargando comandos...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
+  if (loading) return (
+    <div className="mfe-loading">
+      <div className="spinner"></div>
+      <span>Cargando comandos...</span>
+    </div>
+  );
+
+  if (error) return (
+    <div className="mfe-error">
+      <span>Error: {error}</span>
+      <button onClick={fetchCommands}>Reintentar</button>
+    </div>
+  );
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3>Commands MFE</h3>
-        <button onClick={createCommand} style={{ padding: '8px 16px', cursor: 'pointer' }}>
+    <div className="mfe-container">
+      <div className="mfe-header">
+        <h3 className="mfe-title">Commands</h3>
+        <button className="mfe-btn-primary" onClick={createNewCommand}>
           + New Command
         </button>
       </div>
 
       {commands.length === 0 ? (
-        <p>No hay comandos</p>
+        <div className="mfe-empty">
+          <span className="mfe-empty-rule"></span>
+          <span>No hay comandos disponibles</span>
+        </div>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <div className="mfe-list">
           {commands.map((cmd) => (
-            <li key={cmd.id} style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-              <strong>{cmd.command}</strong>
-              <span style={{ marginLeft: '10px', padding: '2px 8px', borderRadius: '4px', background: cmd.status === 'pending' ? '#ffd700' : '#90EE90' }}>
-                {cmd.status}
-              </span>
-            </li>
+            <div key={cmd.id} className="mfe-item">
+              <div className="mfe-item-main">
+                <span className="mfe-command-name">{cmd.command}</span>
+                <span 
+                  className="mfe-status"
+                  style={{ background: statusColors[cmd.status] || '#666' }}
+                >
+                  {cmd.status}
+                </span>
+              </div>
+              <div className="mfe-item-meta">
+                <span>{cmd.createdAt ? new Date(cmd.createdAt).toLocaleString() : '-'}</span>
+                {cmd.payload?.environment && (
+                  <span className="mfe-env">{cmd.payload.environment}</span>
+                )}
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

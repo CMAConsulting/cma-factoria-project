@@ -1,0 +1,155 @@
+/* mfe-settings — inherits CSS variables from shell root */
+
+.settings-container {
+  padding: 0;
+  font-family: var(--font-display, 'Outfit', sans-serif);
+}
+
+.settings-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle, #2a2a2a);
+  background: var(--bg-elevated, #141414);
+}
+
+.settings-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+/* Tabs */
+.settings-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle, #2a2a2a);
+  background: var(--bg-primary, #0a0a0a);
+}
+
+.tab-btn {
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-tertiary, #555);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  transition: color 0.15s ease, border-color 0.15s ease;
+  position: relative;
+  bottom: -1px;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary, #fafafa);
+}
+
+.tab-btn.active {
+  color: var(--accent-primary, #ff6b35);
+  border-bottom-color: var(--accent-primary, #ff6b35);
+}
+
+/* Content */
+.settings-content {
+  padding: 28px 24px;
+}
+
+.settings-section h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle, #2a2a2a);
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary, #888);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-surface, #1c1c1c);
+  border: 1px solid var(--border-subtle, #2a2a2a);
+  border-radius: 0;
+  color: var(--text-primary, #fafafa);
+  font-size: 13px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  transition: border-color 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23555555' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent-primary, #ff6b35);
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: var(--text-primary, #fafafa);
+  font-size: 13px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary, #ff6b35);
+  cursor: pointer;
+}
+
+/* Save button */
+.save-btn {
+  margin-top: 24px;
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--accent-primary, #ff6b35);
+  border: 1px solid var(--accent-primary, #ff6b35);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.save-btn:hover {
+  background: var(--accent-primary, #ff6b35);
+  color: var(--bg-void, #050505);
+}

@@ -1,6 +1,6 @@
 # OpenAPI Generator configuration for TypeScript
 generatorName: typescript-fetch
-output: ./srcsrc
+output: ./src
 inputSpec: ../../../contracts/openapi/commands.yaml
 
 # Package

@@ -2,47 +2,70 @@
 
 ## Descripción
 
-Módulo TypeScript que genera tipos y clientes API automaticamente desde las especificaciones OpenAPI. Permite que los microfrontends consuman backends con type-safety.
+Módulo TypeScript que genera tipos y cliente API automáticamente desde las especificaciones OpenAPI usando `@hey-api/openapi-ts`. Permite que los microfrontends consuman backends con type-safety completo.
 
 ## Ubicación
 
 `apps/frontend/shared-api/`
 
+## Stack
+
+- **Generador**: @hey-api/openapi-ts v0.94+
+- **Cliente HTTP**: Fetch API
+- **Output**: TypeScript compilado a `dist/`
+
+## Estructura
+
+```
+shared-api/
+├── src/                        # Código fuente generado
+│   ├── index.ts                # Exports principales
+│   ├── sdk.gen.ts              # Funciones API (listCommands, executeCommand, etc.)
+│   ├── types.gen.ts            # Tipos TypeScript
+│   ├── client/                 # Cliente HTTP
+│   └── core/                  # Utilidades core
+│
+└── dist/                       # JavaScript compilado
+    ├── index.js, index.d.ts
+    ├── sdk.gen.js, sdk.gen.d.ts
+    └── ...
+```
+
 ## Uso
 
-### Instalación
+### Instalar
 
 ```bash
 cd apps/frontend/shared-api
 npm install
-npm run generate
 npm run build
 ```
 
 ### Consumir en MFE
 
 ```bash
-# En el MFE que lo consumirá
+# En el MFE
 npm install @cma-factoria/shared-api
 ```
 
-### Uso en Componente
+### Ejemplo de Uso
 
 ```tsx
 import { 
-  CommandResponse, 
-  CommandRequest, 
-  CommandsApi,
-  Configuration 
+  listCommands, 
+  executeCommand, 
+  createClient,
+  type CommandRequest 
 } from '@cma-factoria/shared-api';
 
-// Configurar cliente
-const apiConfig = new Configuration({ basePath: 'http://localhost:3000/api' });
-const commandsApi = new CommandsApi(apiConfig);
+// Crear cliente
+const client = createClient({
+  baseUrl: 'http://localhost:3000/api'
+});
 
 // Listar comandos
-const response = await commandsApi.listCommands();
-const commands: CommandResponse[] = response.data.items;
+const response = await listCommands({ client });
+const commands = response.data?.items;
 
 // Crear comando
 const request: CommandRequest = {
@@ -50,32 +73,40 @@ const request: CommandRequest = {
   payload: { environment: 'staging' },
   metadata: { source: 'web' }
 };
-await commandsApi.executeCommand(request);
+await executeCommand({ client, data: request });
 ```
 
-## Modelos Generados
+## Funciones API Generadas
 
-| Modelo | Descripción |
-|--------|-------------|
-| `CommandRequest` | Request para crear comando |
-| `CommandResponse` | Respuesta de comando |
-| `CommandPayload` | Datos del payload |
-| `CommandMetadata` | Metadatos del comando |
-| `CommandResult` | Resultado de comando |
-| `CommandResultData` | Datos del resultado |
-| `CommandListResponse` | Lista paginada de comandos |
-| `ModelError` | Respuesta de error |
+| Función | Método | Endpoint |
+|---------|--------|----------|
+| `listCommands` | GET | `/commands` |
+| `executeCommand` | POST | `/commands` |
+| `getCommand` | GET | `/commands/{id}` |
+| `getCommandResult` | GET | `/commands/{id}/result` |
 
-## API Generada
+## Tipos Generados
 
-### CommandsApi
+- `CommandRequest`
+- `CommandResponse`
+- `CommandPayload`
+- `CommandMetadata`
+- `CommandResult`
+- `CommandListResponse`
+- `Error`
 
-| Método | Descripción |
-|--------|-------------|
-| `executeCommand` | Crear comando |
-| `listCommands` | Listar comandos |
-| `getCommand` | Obtener comando por ID |
-| `getCommandResult` | Obtener resultado |
+## Comandos
+
+```bash
+# Generar tipos desde OpenAPI
+npm run generate
+
+# Compilar TypeScript
+npm run build
+
+# Generar + compilar
+npm run build
+```
 
 ## Regenerar Tipos
 
@@ -83,7 +114,6 @@ Si cambia la especificación OpenAPI:
 
 ```bash
 cd apps/frontend/shared-api
-npm run generate
 npm run build
 ```
 
@@ -93,20 +123,20 @@ npm run build
 {
   "devDependencies": {
     "typescript": "^5.7.2",
-    "@openapitools/openapi-generator-cli": "^2.15.0"
+    "@hey-api/openapi-ts": "^0.94.4"
   }
 }
 ```
 
-## Configuración
-
-El archivo `openapi.config.yaml` especifica:
-- Input: `contracts/openapi/commands.yaml`
-- Output: Tipos TypeScript con fetch API
-- Paquete: `@cma-factoria/shared-api`
-
 ## Notas
 
-- Usa `typescript-fetch` generator
-- Tipos 100% consistentes con el backend
-- API cliente lista para usar
+- Genera código 100% compatible con TypeScript strict
+- Usa Fetch API nativa (sin dependencias adicionales)
+- Soporta autenticación JWT (configurable)
+- Tipos siempre sincronizados con el backend
+
+## Alternativas Consideradas
+
+- **openapi-generator-cli** - Más complejo, requiere Java
+- **apigen-ts** - Un solo archivo de salida
+- **@nicolas-chaulet/openapi-typescript-codegen** - Sin mantenimiento activo

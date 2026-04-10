@@ -1,0 +1,209 @@
+/* mfe-commands — inherits CSS variables from shell root */
+
+.mfe-container {
+  padding: 0;
+  font-family: var(--font-display, 'Outfit', sans-serif);
+}
+
+.mfe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle, #2a2a2a);
+  background: var(--bg-elevated, #141414);
+}
+
+.mfe-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.mfe-btn-primary {
+  background: transparent;
+  color: var(--accent-primary, #ff6b35);
+  border: 1px solid var(--accent-primary, #ff6b35);
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mfe-btn-primary:hover {
+  background: var(--accent-primary, #ff6b35);
+  color: var(--bg-void, #050505);
+}
+
+.mfe-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.mfe-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.mfe-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mfe-list::-webkit-scrollbar-thumb {
+  background: var(--border-active, #3d3d3d);
+}
+
+.mfe-item {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-subtle, #2a2a2a);
+  transition: background 0.15s ease;
+  position: relative;
+}
+
+.mfe-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: var(--accent-primary, #ff6b35);
+  transition: height 0.2s ease;
+}
+
+.mfe-item:hover {
+  background: var(--bg-elevated, #141414);
+}
+
+.mfe-item:hover::before {
+  height: 100%;
+}
+
+.mfe-item-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.mfe-command-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary, #fafafa);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  letter-spacing: -0.01em;
+}
+
+.mfe-status {
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: var(--bg-void, #050505);
+}
+
+.mfe-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-tertiary, #555);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.mfe-env {
+  background: var(--bg-surface, #1c1c1c);
+  padding: 2px 8px;
+  border: 1px solid var(--border-subtle, #2a2a2a);
+  color: var(--text-secondary, #888);
+}
+
+/* Empty state */
+.mfe-empty {
+  padding: 64px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-tertiary, #555);
+}
+
+.mfe-empty-rule {
+  width: 32px;
+  height: 2px;
+  background: var(--border-active, #3d3d3d);
+  display: block;
+}
+
+.mfe-empty span:last-child {
+  font-size: 12px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Loading state */
+.mfe-loading {
+  padding: 64px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-tertiary, #555);
+  font-size: 11px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Error state */
+.mfe-error {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--error, #ef4444);
+  font-size: 12px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  border-left: 2px solid var(--error, #ef4444);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.mfe-error button {
+  background: transparent;
+  color: var(--error, #ef4444);
+  border: 1px solid var(--error, #ef4444);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 10px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mfe-error button:hover {
+  background: var(--error, #ef4444);
+  color: var(--bg-void, #050505);
+}
+
+/* Spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-subtle, #2a2a2a);
+  border-top-color: var(--accent-primary, #ff6b35);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
