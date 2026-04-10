@@ -60,7 +60,7 @@ Microservicio REST para ejecución remota de comandos en el sistema CMA Factoria
 
 ### Puerto
 
-- **Desarrollo**: 3000
+- **Desarrollo**: 8080
 - **Configuración**: `application.yaml`
 
 ### Autenticación

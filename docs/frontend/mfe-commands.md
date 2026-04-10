@@ -1,8 +1,8 @@
-# MFE Commands - Microfrontend de Comandos
+# MFE Commands — Microfrontend de Comandos
 
 ## Descripción
 
-Microfrontend para la gestión de comandos remotos. Expone el componente `CommandsApp` para ser consumido por el Shell.
+Microfrontend remoto que gestiona el ciclo de vida de los comandos: listado, creación y visualización de estado. Expone el componente `CommandsApp` para ser consumido por el Shell.
 
 ## Ubicación
 
@@ -12,19 +12,16 @@ Microfrontend para la gestión de comandos remotos. Expone el componente `Comman
 
 - **Desarrollo**: 3001
 
-## Stack Tecnológico
+## Stack
 
-- React 18
-- TypeScript 5.7
-- Webpack 5
-- Module Federation
+- React 18 + TypeScript 5.7
+- Webpack 5 + Module Federation
+- `@cma-factoria/shared-api` para consumo de la API
 
 ## Configuración Module Federation
 
 ```javascript
 // webpack.config.js
-const { ModuleFederationPlugin } = require('webpack').container;
-
 new ModuleFederationPlugin({
   name: 'mfeCommands',
   filename: 'remoteEntry.js',
@@ -40,135 +37,77 @@ new ModuleFederationPlugin({
 
 ## Integración con Backend
 
-Consume el backend usando el módulo compartido `@cma-factoria/shared-api`:
+Conecta al backend Quarkus en el **puerto 8080**:
 
-```
-http://localhost:3000/api/commands
-```
-
-## Dependencia
-
-```json
-{
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@cma-factoria/shared-api": "file:../shared-api"
-  }
-}
+```typescript
+const API_URL = 'http://localhost:8080';
+const client = createClient({ baseUrl: API_URL });
 ```
 
-Para más detalles ver `docs/frontend/shared-api.md`
-
-## Componente Principal
+## Uso de la Shared API
 
 ```tsx
-// src/App.tsx
-import { useState, useEffect } from 'react';
-import { 
-  listCommands, 
-  executeCommand, 
+import {
+  listCommands,
+  executeCommand,
   createClient,
-  type CommandRequest
+  type CommandRequest,
+  type CommandResponse,
 } from '@cma-factoria/shared-api';
 
-const API_URL = 'http://localhost:3000/api';
+// Listar comandos
+const response = await listCommands({ client });
+const commands = response.data?.items || [];
 
-const client = createClient({
-  baseUrl: API_URL,
-});
-
-export default function CommandsApp() {
-  const [commands, setCommands] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchCommands();
-  }, []);
-
-  const fetchCommands = async () => {
-    try {
-      setLoading(true);
-      const response = await listCommands({ client });
-      setCommands(response.data?.items || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createNewCommand = async () => {
-    try {
-      const request: CommandRequest = {
-        command: 'test-' + Date.now(),
-        payload: { environment: 'staging' },
-        metadata: { source: 'mfe-commands' }
-      };
-      await executeCommand({ client, data: request });
-      fetchCommands();
-    } catch (err) {
-      console.error('Error creating command:', err);
-    }
-  };
-
-  if (loading) return <div>Cargando comandos...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
-
-  return (
-    <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3>Commands MFE</h3>
-        <button onClick={createNewCommand} style={{ padding: '8px 16px', cursor: 'pointer' }}>
-          + New Command
-        </button>
-      </div>
-
-      {commands.length === 0 ? (
-        <p>No hay comandos</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {commands.map((cmd) => (
-            <li key={cmd.id} style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-              <strong>{cmd.command}</strong>
-              <span style={{ marginLeft: '10px', padding: '2px 8px', borderRadius: '4px', background: cmd.status === 'pending' ? '#ffd700' : '#90EE90' }}>
-                {cmd.status}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+// Crear comando — usar body, no data
+const request: CommandRequest = {
+  command: 'deploy-' + Date.now(),
+  payload: { environment: 'staging', version: '1.0.0' },
+  metadata: { source: 'mfe-commands' },
+};
+await executeCommand({ client, body: request });
 ```
+
+> **Importante:** `executeCommand` usa el parámetro `body`, no `data`.
+
+## Estados del Componente
+
+| Estado | Descripción |
+|--------|-------------|
+| Loading | Spinner mientras carga la lista |
+| Error | Mensaje de error + botón "Reintentar" |
+| Empty | Línea decorativa + texto cuando no hay comandos |
+| List | Lista de comandos con nombre, status, timestamp y entorno |
+
+## Colores de Status (inline style)
+
+| Status | Color |
+|--------|-------|
+| `pending` | `#eab308` |
+| `processing` | `#ff6b35` (accent del sistema) |
+| `completed` | `#22c55e` |
+| `failed` | `#ef4444` |
+
+## Diseño
+
+Hereda el sistema de diseño del shell mediante variables CSS:
+
+- Sin `border-radius` (estética industrial)
+- Botón "New Command": outlined naranja, fill al hover
+- Indicador de hover por item: borde izquierdo naranja animado (`::before`)
+- Status badges: bloque sin redondeo, tipografía `JetBrains Mono`
+- Scrollbar personalizado (3px, sin track)
 
 ## Desarrollo
 
-### Instalar dependencias
-
 ```bash
+# Compilar shared-api primero
+cd apps/frontend/shared-api && npm run build
+
+# Iniciar el MFE
 cd apps/frontend/mfe-commands
 npm install
-```
-
-### Build shared-api primero
-
-```bash
-cd apps/frontend/shared-api
-npm run build
-```
-
-### Iniciar servidor
-
-```bash
-npm run dev
-```
-
-### Build
-
-```bash
+npm run dev    # http://localhost:3001
 npm run build
 ```
 
@@ -180,21 +119,12 @@ npm run build
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "@cma-factoria/shared-api": "file:../shared-api"
-  },
-  "devDependencies": {
-    "webpack": "^5.97.1",
-    "webpack-dev-server": "^5.2.0",
-    "html-webpack-plugin": "^5.6.3",
-    "typescript": "^5.7.2",
-    "ts-loader": "^9.5.1"
   }
 }
 ```
 
 ## Notas
 
-- Puerto 3001 (diferente al shell/backend)
-- Expone `CommandsApp` como módulo remoto
-- Usa `@cma-factoria/shared-api` para consumo de API con type-safety
-- Requiere backend Command Service en puerto 3000
-- Puede ejecutarse de forma independiente para desarrollo
+- Puede ejecutarse de forma independiente en `http://localhost:3001`
+- Requiere backend en `http://localhost:8080` para datos reales
+- Tipos `CommandResponse`, `CommandRequest` provienen de `@cma-factoria/shared-api` (generados desde `contracts/openapi/commands.yaml`)
