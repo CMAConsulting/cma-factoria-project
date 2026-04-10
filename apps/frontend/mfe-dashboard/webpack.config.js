@@ -10,9 +10,10 @@ module.exports = {
     static: {
       directory: path.join(__dirname, 'dist'),
     },
-    port: 3000,
+    port: 3003,
     historyApiFallback: true,
     hot: true,
+    headers: { 'Access-Control-Allow-Origin': '*' },
   },
   output: {
     publicPath: 'auto',
@@ -26,7 +27,7 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        loader: 'ts-loader',
         exclude: /node_modules/,
       },
       {
@@ -37,12 +38,10 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: 'shell',
+      name: 'mfeDashboard',
       filename: 'remoteEntry.js',
-      remotes: {
-        mfeCommands: 'mfeCommands@http://localhost:3001/remoteEntry.js',
-        mfeSettings: 'mfeSettings@http://localhost:3002/remoteEntry.js',
-        mfeDashboard: 'mfeDashboard@http://localhost:3003/remoteEntry.js',
+      exposes: {
+        './DashboardApp': './src/App',
       },
       shared: {
         react: {
@@ -57,8 +56,6 @@ module.exports = {
         },
       },
     }),
-    new HtmlWebpackPlugin({
-      template: './index.html',
-    }),
+    new HtmlWebpackPlugin({ template: './index.html' }),
   ],
 };

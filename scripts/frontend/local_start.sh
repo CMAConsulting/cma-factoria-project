@@ -16,7 +16,7 @@ log "INFO" "=========================================="
 
 FRONTEND_DIR="$PROJECT_ROOT/apps/frontend"
 
-for app in shell mfe-commands mfe-settings shared-api; do
+for app in shell mfe-commands mfe-settings shared-api mfe-dashboard; do
     if [[ ! -d "$FRONTEND_DIR/$app" ]]; then
         handle_error "Directorio de frontend no encontrado: $FRONTEND_DIR/$app"
     fi
@@ -43,6 +43,13 @@ if [[ -f "package.json" ]]; then
     log "SUCCESS" "mfe-settings dependencies installed"
 fi
 
+log "INFO" "Instalando dependencias de mfe-dashboard..."
+cd "$FRONTEND_DIR/mfe-dashboard"
+if [[ -f "package.json" ]]; then
+    npm install --silent 2>/dev/null || npm install
+    log "SUCCESS" "mfe-dashboard dependencies installed"
+fi
+
 log "INFO" "Instalando dependencias de shell..."
 cd "$FRONTEND_DIR/shell"
 if [[ -f "package.json" ]]; then
@@ -58,6 +65,7 @@ log "INFO" "=========================================="
 log "INFO" " - Shell: http://localhost:3000"
 log "INFO" " - MFE Commands: http://localhost:3001"
 log "INFO" " - MFE Settings: http://localhost:3002"
+log "INFO" " - MFE Dashboard: http://localhost:3003"
 log "INFO" "=========================================="
 
 log "INFO" "Iniciando mfe-commands en puerto 3001..."
@@ -67,6 +75,11 @@ MFE_COMMANDS_PID=$!
 
 log "INFO" "Iniciando mfe-settings en puerto 3002..."
 cd "$FRONTEND_DIR/mfe-settings"
+npm run dev &
+MFE_SETTINGS_PID=$!
+
+log "INFO" "Iniciando mfe-dashboard en puerto 3003..."
+cd "$FRONTEND_DIR/mfe-dashboard"
 npm run dev &
 MFE_SETTINGS_PID=$!
 

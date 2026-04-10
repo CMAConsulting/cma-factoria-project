@@ -1,0 +1,329 @@
+openapi: 3.1.0
+info:
+  title: Settings API
+  description: API para gestión de configuración de la aplicación CMA Factoria
+  version: 1.0.0
+  contact:
+    name: CMA Factoria Team
+
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor local
+
+tags:
+  - name: settings
+    description: Endpoints para gestión de configuración general, API y notificaciones
+
+paths:
+  /settings:
+    get:
+      tags:
+        - settings
+      summary: Obtener todas las configuraciones
+      operationId: getSettings
+      responses:
+        '200':
+          description: Configuración completa de la aplicación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+              example:
+                general:
+                  applicationName: "CMA Factoria"
+                  environment: "development"
+                  timezone: "Europe/Madrid"
+                api:
+                  apiBaseUrl: "http://localhost:8080"
+                  apiTimeoutMs: 30000
+                  enableApiCaching: true
+                notifications:
+                  emailOnCommandCompletion: true
+                  pushOnError: true
+                  weeklySummaryEnabled: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /settings/general:
+    get:
+      tags:
+        - settings
+      summary: Obtener configuración general
+      operationId: getGeneralSettings
+      responses:
+        '200':
+          description: Configuración general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - settings
+      summary: Actualizar configuración general
+      operationId: updateGeneralSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneralSettings'
+            example:
+              applicationName: "CMA Factoria"
+              environment: "staging"
+              timezone: "Europe/Madrid"
+      responses:
+        '200':
+          description: Configuración general actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /settings/api:
+    get:
+      tags:
+        - settings
+      summary: Obtener configuración de la API
+      operationId: getApiSettings
+      responses:
+        '200':
+          description: Configuración de la API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - settings
+      summary: Actualizar configuración de la API
+      operationId: updateApiSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiSettings'
+            example:
+              apiBaseUrl: "http://localhost:8080"
+              apiTimeoutMs: 30000
+              enableApiCaching: true
+      responses:
+        '200':
+          description: Configuración de la API actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /settings/notifications:
+    get:
+      tags:
+        - settings
+      summary: Obtener preferencias de notificaciones
+      operationId: getNotificationSettings
+      responses:
+        '200':
+          description: Preferencias de notificaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - settings
+      summary: Actualizar preferencias de notificaciones
+      operationId: updateNotificationSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+            example:
+              emailOnCommandCompletion: true
+              pushOnError: true
+              weeklySummaryEnabled: false
+      responses:
+        '200':
+          description: Preferencias de notificaciones actualizadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    GeneralSettings:
+      type: object
+      required:
+        - applicationName
+        - environment
+        - timezone
+      properties:
+        applicationName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Nombre de la aplicación
+          example: "CMA Factoria"
+        environment:
+          type: string
+          enum: [development, staging, production]
+          description: Entorno activo de la aplicación
+          example: "development"
+        timezone:
+          type: string
+          description: Zona horaria en formato IANA (ej. Europe/Madrid)
+          example: "Europe/Madrid"
+
+    ApiSettings:
+      type: object
+      required:
+        - apiBaseUrl
+        - apiTimeoutMs
+        - enableApiCaching
+      properties:
+        apiBaseUrl:
+          type: string
+          format: uri
+          description: URL base del backend al que apunta el frontend
+          example: "http://localhost:8080"
+        apiTimeoutMs:
+          type: integer
+          minimum: 1000
+          maximum: 120000
+          description: Tiempo máximo de espera para llamadas HTTP en milisegundos
+          example: 30000
+        enableApiCaching:
+          type: boolean
+          description: Habilitar caché de respuestas de la API
+          example: true
+
+    NotificationSettings:
+      type: object
+      required:
+        - emailOnCommandCompletion
+        - pushOnError
+        - weeklySummaryEnabled
+      properties:
+        emailOnCommandCompletion:
+          type: boolean
+          description: Enviar email cuando un comando finaliza exitosamente
+          example: true
+        pushOnError:
+          type: boolean
+          description: Enviar notificación push cuando un comando falla
+          example: true
+        weeklySummaryEnabled:
+          type: boolean
+          description: Enviar resumen semanal de actividad por email
+          example: false
+
+    SettingsResponse:
+      type: object
+      required:
+        - general
+        - api
+        - notifications
+      properties:
+        general:
+          $ref: '#/components/schemas/GeneralSettings'
+        api:
+          $ref: '#/components/schemas/ApiSettings'
+        notifications:
+          $ref: '#/components/schemas/NotificationSettings'
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Código de error
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          description: Mensaje descriptivo
+          example: "El campo applicationName es requerido"
+        details:
+          type: object
+          description: Detalles adicionales del error
+
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INVALID_REQUEST"
+            message: "El campo applicationName es requerido"
+
+    Unauthorized:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Token de autenticación requerido"
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INTERNAL_ERROR"
+            message: "Error interno del servidor"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT para autenticación
+
+security:
+  - bearerAuth: []

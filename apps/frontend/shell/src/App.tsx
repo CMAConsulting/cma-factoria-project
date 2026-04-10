@@ -3,6 +3,8 @@ import './App.css';
 
 const MfeCommands = lazy(() => import('mfeCommands/CommandsApp'));
 const MfeSettings = lazy(() => import('mfeSettings/SettingsApp'));
+const MfeDashboard = lazy(() => import('mfeDashboard/DashboardApp'));
+// Dashboard module no longer part of shell
 
 type Page = 'dashboard' | 'commands' | 'settings';
 
@@ -103,6 +105,17 @@ function App() {
             </div>
           }>
             <MfeSettings />
+          </Suspense>
+        );
+      case 'dashboard':
+        return (
+          <Suspense fallback={
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <span>Cargando configuración...</span>
+            </div>
+          }>
+            <MfeDashboard />
           </Suspense>
         );
       default:
