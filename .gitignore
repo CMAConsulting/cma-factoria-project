@@ -27,6 +27,10 @@ temp/
 .idea/
 *.swp
 *.swo
+*.iml
+target/
+.settings/
+.project
 
 opencode.json
 !opencode.json.example

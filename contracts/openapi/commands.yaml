@@ -1,0 +1,370 @@
+openapi: 3.1.0
+info:
+  title: Command API
+  description: API para ejecución remota de comandos en el sistema
+  version: 1.0.0
+  contact:
+    name: CMA Factoria Team
+
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor local
+
+tags:
+  - name: commands
+    description: Endpoints para gestión de comandos
+
+paths:
+  /commands:
+    post:
+      tags:
+        - commands
+      summary: Enviar un comando para ejecución
+      operationId: executeCommand
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+            example:
+              command: "deploy"
+              payload:
+                environment: "staging"
+                version: "1.2.0"
+              metadata:
+                source: "ci-pipeline"
+                correlationId: "deploy-123"
+      responses:
+        '202':
+          description: Comando aceptado para procesamiento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
+              example:
+                id: "cmd-550e8400-e29b-41d4-a716-446655440000"
+                status: "pending"
+                command: "deploy"
+                payload:
+                  environment: "staging"
+                  version: "1.2.0"
+                metadata:
+                  source: "ci-pipeline"
+                  correlationId: "deploy-123"
+                createdAt: "2026-04-09T12:00:00Z"
+                completedAt: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags:
+        - commands
+      summary: Listar comandos
+      operationId: listCommands
+      parameters:
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/source'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Lista de comandos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /commands/{id}:
+    get:
+      tags:
+        - commands
+      summary: Consultar estado de un comando
+      operationId: getCommand
+      parameters:
+        - $ref: '#/components/parameters/commandId'
+      responses:
+        '200':
+          description: Estado del comando
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /commands/{id}/result:
+    get:
+      tags:
+        - commands
+      summary: Obtener resultado de un comando
+      operationId: getCommandResult
+      parameters:
+        - $ref: '#/components/parameters/commandId'
+      responses:
+        '200':
+          description: Resultado del comando
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  parameters:
+    status:
+      name: status
+      in: query
+      schema:
+        type: string
+        enum: [pending, processing, completed, failed]
+      description: Filtrar por estado
+    source:
+      name: source
+      in: query
+      schema:
+        type: string
+      description: Filtrar por fuente
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+      description: Límite de resultados
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+      description: Offset de paginación
+    commandId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID del comando
+      example: "cmd-550e8400-e29b-41d4-a716-446655440000"
+
+  schemas:
+    CommandPayload:
+      type: object
+      properties:
+        environment:
+          type: string
+          description: Entorno de despliegue
+          example: "staging"
+        version:
+          type: string
+          description: Versión a desplegar
+          example: "1.2.0"
+
+    CommandMetadata:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Origen del comando
+          example: "ci-pipeline"
+        correlationId:
+          type: string
+          description: ID de correlación
+          example: "deploy-123"
+
+    CommandResultData:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensaje del resultado
+        output:
+          type: string
+          description: Salida del comando
+
+    CommandRequest:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Nombre del comando a ejecutar
+          example: "deploy"
+        payload:
+          $ref: '#/components/schemas/CommandPayload'
+        metadata:
+          $ref: '#/components/schemas/CommandMetadata'
+
+    CommandResponse:
+      type: object
+      required:
+        - id
+        - status
+        - command
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único del comando
+          example: "cmd-550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+          description: Estado actual del comando
+          example: "pending"
+        command:
+          type: string
+          description: Comando ejecutado
+          example: "deploy"
+        payload:
+          $ref: '#/components/schemas/CommandPayload'
+        metadata:
+          $ref: '#/components/schemas/CommandMetadata'
+        result:
+          $ref: '#/components/schemas/CommandResultData'
+        error:
+          type: string
+          description: Mensaje de error si falló
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp de creación
+          example: "2026-04-09T12:00:00Z"
+        completedAt:
+          type: string
+          format: date-time
+          description: Timestamp de completado
+
+    CommandListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandResponse'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    CommandResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único del comando
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+          description: Estado actual del comando
+        result:
+          $ref: '#/components/schemas/CommandResultData'
+        error:
+          type: string
+          description: Mensaje de error si falló
+        completedAt:
+          type: string
+          format: date-time
+          description: Timestamp de completado
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Código de error
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          description: Mensaje descriptivo
+          example: "El comando es requerido"
+        details:
+          type: object
+          description: Detalles adicionales
+
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INVALID_REQUEST"
+            message: "El comando es requerido"
+
+    Unauthorized:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Token de autenticación requerido"
+
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "NOT_FOUND"
+            message: "Comando no encontrado"
+
+    TooManyRequests:
+      description: Demasiadas solicitudes
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "TOO_MANY_REQUESTS"
+            message: "Rate limit excedido"
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INTERNAL_ERROR"
+            message: "Error interno del servidor"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT para autenticación
+
+security:
+  - bearerAuth: []

@@ -1,0 +1,37 @@
+# Application Configuration
+quarkus:
+  application:
+    name: command-service
+  http:
+    port: 3000
+    host: ${HTTP_HOST:0.0.0.0}
+    cors:
+      enabled: true
+  # OpenAPI
+  smallrye-openapi:
+    info-title: Command API
+    info-version: 1.0.0
+    info-description: API para ejecución remota de comandos en el sistema
+  # Swagger UI
+  swagger-ui:
+    always-include: true
+  # Health
+  smallrye-health:
+    root-path: /health
+  # Logging
+  log:
+    level: INFO
+  # Disable JWT in dev
+  smallrye-jwt:
+    enabled: false
+  # Jackson - exclude null values
+  jackson:
+    serialization-inclusion: NON_NULL
+
+# MP JWT Configuration  
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: publicKey.pem
+      issuer: https://cma-factoria.com

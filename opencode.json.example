@@ -1,33 +1,19 @@
 {
-  "model": "anthropic/claude-3-5-sonnet-20241022",
-  "permissions": {
-    "bash": {
-      "default": "allow",
-      "critical": "ask",
-      "commands": ["git commit", "git push", "rm -rf", "dd"]
-    },
-    "read": "allow",
-    "write": "allow"
-  },
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-5",
   "instructions": [
     "./AGENTS.md"
   ],
-  "agents": {
-    "oscar": {
-      "role": "orchestrator",
-      "description": "Líder técnico que orquesta el SDLC"
+  "permission": {
+    "*": "ask",
+    "bash": {
+      "*": "ask",
+      "git commit": "allow",
+      "git push": "ask",
+      "npm *": "allow",
+      "rm *": "deny"
     },
-    "scout": {
-      "role": "researcher",
-      "description": "Investigador que genera SPEC.md"
-    },
-    "ivan": {
-      "role": "implementation",
-      "description": "Implementador senior que escribe código"
-    },
-    "jester": {
-      "role": "validator",
-      "description": "Validador y QA"
-    }
+    "read": "allow",
+    "edit": "ask"
   }
 }
