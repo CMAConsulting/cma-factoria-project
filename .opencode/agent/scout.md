@@ -24,7 +24,7 @@ permissions:
 cd apps/backend/command-service && mvn quarkus:dev
 
 # Frontend
-cd apps/frontend/shell && npm run dev
+cd apps/frontend/mfe-principal && npm run dev
 cd apps/frontend/mfe-commands && npm run dev
 cd apps/frontend/shared-api && npm run generate
 

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/elperez/.claude -maxdepth 3 -name *.md -type f)",
+      "WebSearch",
+      "WebFetch(domain:opencode.ai)",
+      "Bash(grep -E \"\\(^[^/]*$|/[^/]*$|package.json|pom.xml|Makefile\\)\")",
+      "Bash(find /mnt/disco_1/servers/microk8s.cmaconsulting.org/home/elperez/fuentes/cma-factoria-project -name webpack.config.js -exec head -70 {} +)",
+      "Bash(ls:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(sed -i '0,/\"name\": \"shell\"/s/\"name\": \"shell\"/\"name\": \"mfe-principal\"/' /mnt/disco_1/servers/microk8s.cmaconsulting.org/home/elperez/fuentes/cma-factoria-project/apps/frontend/mfe-principal/package-lock.json)",
+      "Bash(git mv:*)",
+      "Bash(mvn clean:*)",
+      "Bash(mvn generate-sources:*)",
+      "Bash(git -C /mnt/disco_1/servers/microk8s.cmaconsulting.org/home/elperez/fuentes/cma-factoria-project status --short)",
+      "Bash(echo \"EXIT:$?\")"
+    ]
+  }
+}

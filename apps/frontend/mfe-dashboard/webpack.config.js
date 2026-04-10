@@ -54,6 +54,11 @@ module.exports = {
           requiredVersion: deps['react-dom'],
           eager: true,
         },
+        '@cma-factoria/shared-dashboard-api': {
+          singleton: true,
+          requiredVersion: deps['@cma-factoria/shared-dashboard-api'],
+          eager: true,
+        },
       },
     }),
     new HtmlWebpackPlugin({ template: './index.html' }),

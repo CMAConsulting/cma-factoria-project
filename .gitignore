@@ -31,9 +31,8 @@ temp/
 target/
 .settings/
 .project
+.fuse_hidden*
 package-lock.json
 
-opencode.json
 !opencode.json.example
-
-BEADS.json
+!.claude/settings.local.json

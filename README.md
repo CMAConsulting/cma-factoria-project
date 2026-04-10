@@ -7,10 +7,13 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 | Componente | Tecnología | Puerto |
 |------------|------------|--------|
 | Backend | Quarkus 3 (Java 17) + RESTEasy Reactive | 8080 |
-| Frontend Shell | React 18 + Webpack Module Federation (host) | 3000 |
+| MFE Principal | React 18 + Webpack Module Federation (host) | 3000 |
 | MFE Commands | React 18 + Module Federation (remote) | 3001 |
 | MFE Settings | React 18 + Module Federation (remote) | 3002 |
-| Shared API | TypeScript generado desde OpenAPI (`@hey-api/openapi-ts`) | — |
+| MFE Dashboard | React 18 + Module Federation (remote) | 3003 |
+| Shared Commands API | TypeScript generado desde `contracts/openapi/commands.yaml` | — |
+| Shared Dashboard API | TypeScript generado desde `contracts/openapi/dashboard.yaml` | — |
+| Shared Settings API | TypeScript generado desde `contracts/openapi/settings.yaml` | — |
 
 ## Estructura
 
@@ -23,14 +26,19 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 │   ├── backend/
 │   │   └── command-service/         # Microservicio Quarkus (puerto 8080)
 │   └── frontend/
-│       ├── shell/                   # Host MFE — navegación y layout (3000)
+│       ├── mfe-principal/           # Host MFE — navegación y layout (3000)
 │       ├── mfe-commands/            # Remote MFE — gestión de comandos (3001)
 │       ├── mfe-settings/            # Remote MFE — configuración (3002)
-│       └── shared-api/              # Cliente HTTP generado desde OpenAPI
+│       ├── mfe-dashboard/           # Remote MFE — métricas y actividad (3003)
+│       ├── shared-commands-api/     # Cliente HTTP generado desde commands.yaml
+│       ├── shared-dashboard-api/    # Cliente HTTP generado desde dashboard.yaml
+│       └── shared-settings-api/     # Cliente HTTP generado desde settings.yaml
 │
 ├── contracts/
 │   └── openapi/
-│       └── commands.yaml            # Fuente de verdad de la API
+│       ├── commands.yaml            # Contrato API de comandos
+│       ├── dashboard.yaml           # Contrato API de dashboard
+│       └── settings.yaml           # Contrato API de configuración
 │
 ├── scripts/
 │   ├── backend/
@@ -58,35 +66,44 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 # Terminal 1 — Backend (Quarkus en puerto 8080)
 ./scripts/backend/local_start.sh
 
-# Terminal 2 — Frontend (shell:3000 + mfe-commands:3001 + mfe-settings:3002)
+# Terminal 2 — Frontend (mfe-principal:3000 + remotos:3001-3003)
 ./scripts/frontend/local_start.sh
 ```
 
-**Requisitos:** Java 17+, Maven 3.9+, Node.js 18+, puertos 8080 / 3000 / 3001 / 3002 libres.
+**Requisitos:** Java 17+, Maven 3.9+, Node.js 18+, puertos 8080 / 3000 / 3001 / 3002 / 3003 libres.
 
 Accede a: `http://localhost:3000`
 
 ## Arquitectura Module Federation
 
 ```
-shell (3000)
-  ├── mfeCommands → http://localhost:3001/remoteEntry.js
-  └── mfeSettings → http://localhost:3002/remoteEntry.js
+mfePrincipal (3000)
+  ├── mfeCommands  → http://localhost:3001/remoteEntry.js
+  ├── mfeSettings  → http://localhost:3002/remoteEntry.js
+  └── mfeDashboard → http://localhost:3003/remoteEntry.js
 ```
 
-El Shell actúa como host. Los MFEs son remotos que se cargan de forma lazy con `React.lazy()`.
+El MFE Principal actúa como host. Los MFEs remotos se cargan de forma lazy con `React.lazy()`.
 
-## API Contract
+## Contratos OpenAPI
 
-La especificación OpenAPI vive en `contracts/openapi/commands.yaml`. Los tipos TypeScript se generan automáticamente:
+Las especificaciones OpenAPI viven en `contracts/openapi/`. Cada contrato tiene su propia shared-api:
 
 ```bash
-cd apps/frontend/shared-api
-npm run generate   # regenera desde commands.yaml
-npm run build      # compila a dist/
+# Commands
+cd apps/frontend/shared-commands-api && npm run generate && npm run build
+
+# Dashboard
+cd apps/frontend/shared-dashboard-api && npm run generate && npm run build
+
+# Settings
+cd apps/frontend/shared-settings-api && npm run generate && npm run build
 ```
 
-Los MFEs importan desde `@cma-factoria/shared-api`.
+Los MFEs importan desde su shared-api correspondiente:
+- `mfe-commands` → `@cma-factoria/shared-commands-api`
+- `mfe-dashboard` → `@cma-factoria/shared-dashboard-api`
+- `mfe-settings` → `@cma-factoria/shared-settings-api`
 
 ## Agentes Claude Code
 
@@ -188,11 +205,16 @@ El proyecto incluye configuración en `.opencode/` — agentes (`agent/`), skill
 
 | Documento | Contenido |
 |-----------|-----------|
-| [command-service.md](docs/backend/command-service.md) | Backend REST API |
-| [shell.md](docs/frontend/shell.md) | Shell (host MFE) |
+| [command-service.md](docs/backend/command-service.md) | Backend REST API — comandos |
+| [dashboard-service.md](docs/backend/dashboard-service.md) | Backend REST API — dashboard |
+| [settings-service.md](docs/backend/settings-service.md) | Backend REST API — configuración |
+| [mfe-principal.md](docs/frontend/mfe-principal.md) | MFE Principal (host) |
 | [mfe-commands.md](docs/frontend/mfe-commands.md) | MFE Commands |
 | [mfe-settings.md](docs/frontend/mfe-settings.md) | MFE Settings |
-| [shared-api.md](docs/frontend/shared-api.md) | Cliente OpenAPI generado |
+| [mfe-dashboard.md](docs/frontend/mfe-dashboard.md) | MFE Dashboard |
+| [shared-commands-api.md](docs/frontend/shared-commands-api.md) | Shared Commands API |
+| [shared-dashboard-api.md](docs/frontend/shared-dashboard-api.md) | Shared Dashboard API |
+| [shared-settings-api.md](docs/frontend/shared-settings-api.md) | Shared Settings API |
 | [adr-001](docs/architecture/adr-001-canal-comandos-remotos.md) | Decisión: Canal de comandos remotos |
 | [scripts/backend.md](docs/scripts/backend.md) | Scripts de backend |
 | [scripts/frontend.md](docs/scripts/frontend.md) | Scripts de frontend |

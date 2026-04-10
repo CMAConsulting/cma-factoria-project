@@ -56,11 +56,11 @@ cd apps/backend/command-service && mvn clean compile
 cd apps/frontend/shared-api && npm run build
 cd apps/frontend/mfe-commands && npm run build
 cd apps/frontend/mfe-settings && npm run build
-cd apps/frontend/shell && npm run build
+cd apps/frontend/mfe-principal && npm run build
 
 # Verificar puertos
 lsof -i :8080  # backend
-lsof -i :3000  # shell
+lsof -i :3000  # mfe-principal
 lsof -i :3001  # mfe-commands
 lsof -i :3002  # mfe-settings
 ```

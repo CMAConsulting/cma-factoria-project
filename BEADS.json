@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "description": "Sistema de tracking de tareas optimizado para agentes",
+  "agents": {
+    "oscar": {
+      "role": "orchestrator",
+      "responsibilities": ["delegar", "orquestar", "consolidar"]
+    },
+    "scout": {
+      "role": "researcher",
+      "responsibilities": ["analizar", "especificar", "documentar"]
+    },
+    "ivan": {
+      "role": "implementation",
+      "responsibilities": ["implementar", "codificar", "desarrollar"]
+    },
+    "jester": {
+      "role": "validator",
+      "responsibilities": ["validar", "testear", "verificar"]
+    }
+  },
+  "workflow": {
+    "phases": [
+      {"name": "analysis", "agent": "scout"},
+      {"name": "implementation", "agent": "ivan"},
+      {"name": "validation", "agent": "jester"},
+      {"name": "consolidation", "agent": "oscar"}
+    ]
+  },
+  "tasks": []
+}

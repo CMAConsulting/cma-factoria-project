@@ -7,10 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Capa | Tecnología | Puerto |
 |------|-----------|--------|
 | Backend | Quarkus 3 (Java 17), RESTEasy Reactive | 8080 |
-| Shell | React 18 + Webpack Module Federation (host) | 3000 |
+| MFE Principal | React 18 + Webpack Module Federation (host) | 3000 |
 | MFE Commands | React 18 + Module Federation (remote) | 3001 |
 | MFE Settings | React 18 + Module Federation (remote) | 3002 |
-| Shared API | @hey-api/openapi-ts generado desde OpenAPI | — |
+| MFE Dashboard | React 18 + Module Federation (remote) | 3003 |
+| Shared Commands API | @hey-api/openapi-ts generado desde commands.yaml | — |
+| Shared Dashboard API | @hey-api/openapi-ts generado desde dashboard.yaml | — |
+| Shared Settings API | @hey-api/openapi-ts generado desde settings.yaml | — |
 
 ## Comandos de desarrollo
 
@@ -37,8 +40,8 @@ npm run build            # Compila src/ → dist/
 cd apps/frontend/mfe-commands && npm run dev   # puerto 3001
 cd apps/frontend/mfe-settings && npm run dev   # puerto 3002
 
-# 3. Shell (host)
-cd apps/frontend/shell && npm run dev          # puerto 3000
+# 3. MFE Principal (host)
+cd apps/frontend/mfe-principal && npm run dev  # puerto 3000
 ```
 
 O con los scripts de orquestación:

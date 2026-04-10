@@ -1,0 +1,176 @@
+openapi: 3.1.0
+info:
+  title: Dashboard API
+  description: API para el módulo de Dashboard de CMA Factoria
+  version: 1.0.0
+  contact:
+    name: CMA Factoria Team
+
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor local
+
+tags:
+  - name: dashboard
+    description: Endpoints para métricas y estadísticas del sistema
+
+paths:
+  /dashboard/metrics:
+    get:
+      tags:
+        - dashboard
+      summary: Obtener métricas del sistema
+      operationId: getDashboardMetrics
+      responses:
+        '200':
+          description: Métricas del sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetrics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dashboard/activity:
+    get:
+      tags:
+        - dashboard
+      summary: Obtener actividad reciente
+      operationId: getDashboardActivity
+      responses:
+        '200':
+          description: Actividad reciente del sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardActivity'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    DashboardMetrics:
+      type: object
+      required:
+        - pending
+        - processing
+        - completed
+        - failed
+      properties:
+        pending:
+          type: integer
+          description: Número de comandos pendientes
+          example: 12
+        processing:
+          type: integer
+          description: Número de comandos en procesamiento
+          example: 5
+        completed:
+          type: integer
+          description: Número de comandos completados
+          example: 148
+        failed:
+          type: integer
+          description: Número de comandos fallidos
+          example: 3
+
+    DashboardActivity:
+      type: array
+      items:
+        $ref: '#/components/schemas/ActivityItem'
+
+    ActivityItem:
+      type: object
+      required:
+        - id
+        - timestamp
+        - type
+        - description
+      properties:
+        id:
+          type: string
+          description: Identificador único de la actividad
+          example: "cmd-12345"
+        timestamp:
+          type: string
+          format: date-time
+          description: Fecha y hora de la actividad
+          example: "2026-04-10T10:30:00Z"
+        type:
+          type: string
+          enum: [command-start, command-complete, command-error, notification]
+          description: Tipo de actividad
+          example: "command-complete"
+        description:
+          type: string
+          description: Descripción legible de la actividad
+          example: "Command 'deploy-production' completed successfully"
+        userId:
+          type: string
+          description: ID del usuario asociado (opcional)
+          example: "user-42"
+        metadata:
+          type: object
+          description: Metadatos adicionales específicos del tipo de actividad
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Código de error
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          description: Mensaje descriptivo
+          example: "El campo applicationName es requerido"
+        details:
+          type: object
+          description: Detalles adicionales del error
+
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INVALID_REQUEST"
+            message: "El campo applicationName es requerido"
+
+    Unauthorized:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Token de autenticación requerido"
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INTERNAL_ERROR"
+            message: "Error interno del servidor"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT para autenticación
+security:
+  - bearerAuth: []

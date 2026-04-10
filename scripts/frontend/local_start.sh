@@ -16,7 +16,7 @@ log "INFO" "=========================================="
 
 FRONTEND_DIR="$PROJECT_ROOT/apps/frontend"
 
-for app in shell mfe-commands mfe-settings shared-api mfe-dashboard; do
+for app in mfe-principal mfe-commands mfe-settings shared-api mfe-dashboard; do
     if [[ ! -d "$FRONTEND_DIR/$app" ]]; then
         handle_error "Directorio de frontend no encontrado: $FRONTEND_DIR/$app"
     fi
@@ -50,8 +50,8 @@ if [[ -f "package.json" ]]; then
     log "SUCCESS" "mfe-dashboard dependencies installed"
 fi
 
-log "INFO" "Instalando dependencias de shell..."
-cd "$FRONTEND_DIR/shell"
+log "INFO" "Instalando dependencias de mfe-principal..."
+cd "$FRONTEND_DIR/mfe-principal"
 if [[ -f "package.json" ]]; then
     npm install --silent 2>/dev/null || npm install
     log "SUCCESS" "shell dependencies installed"
@@ -62,7 +62,7 @@ cd "$FRONTEND_DIR"
 log "INFO" "=========================================="
 log "INFO" "Iniciando servicios de frontend..."
 log "INFO" "=========================================="
-log "INFO" " - Shell: http://localhost:3000"
+log "INFO" " - MFE Principal: http://localhost:3000"
 log "INFO" " - MFE Commands: http://localhost:3001"
 log "INFO" " - MFE Settings: http://localhost:3002"
 log "INFO" " - MFE Dashboard: http://localhost:3003"
@@ -83,13 +83,13 @@ cd "$FRONTEND_DIR/mfe-dashboard"
 npm run dev &
 MFE_SETTINGS_PID=$!
 
-log "INFO" "Iniciando shell en puerto 3000..."
-cd "$FRONTEND_DIR/shell"
+log "INFO" "Iniciando mfe-principal en puerto 3000..."
+cd "$FRONTEND_DIR/mfe-principal"
 npm run dev &
 SHELL_PID=$!
 
 log "SUCCESS" "Servicios de frontend iniciados"
-log "INFO" "PIDs - Shell: $SHELL_PID, MFE-Commands: $MFE_COMMANDS_PID, MFE-Settings: $MFE_SETTINGS_PID"
+log "INFO" "PIDs - MFE-Principal: $SHELL_PID, MFE-Commands: $MFE_COMMANDS_PID, MFE-Settings: $MFE_SETTINGS_PID"
 log "INFO" "Presiona Ctrl+C para detener todos los servicios"
 
 cleanup() {

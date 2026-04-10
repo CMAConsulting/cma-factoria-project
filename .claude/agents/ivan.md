@@ -37,7 +37,7 @@ cd apps/backend/command-service && mvn clean compile
 # Frontend
 cd apps/frontend/shared-api && npm run generate && npm run build
 cd apps/frontend/mfe-commands && npm run build
-cd apps/frontend/shell && npm run build
+cd apps/frontend/mfe-principal && npm run build
 ```
 
 ## Responsabilidades

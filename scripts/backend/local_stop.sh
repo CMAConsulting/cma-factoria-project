@@ -1,6 +1,6 @@
 #!/bin/bash
 # CMA Factoria - Backend Local Stop Script
-# Description: Detiene el backend (command-service)
+# Description: Detiene el backend (command-api-ms / dashboard-api-ms / settings-api-ms)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -10,16 +10,17 @@ MODULE_NAME="backend-localstop"
 
 log "INFO" "Deteniendo servicios del backend..."
 
-QUARKUS_PID=$(lsof -ti:8080 2>/dev/null || true)
+for PORT in 8080 8081 8082; do
+    PID=$(lsof -ti:$PORT 2>/dev/null || true)
+    if [[ -n "$PID" ]]; then
+        log "INFO" "Deteniendo proceso Quarkus (PID: $PID) en puerto $PORT..."
+        kill $PID 2>/dev/null || true
+    else
+        log "WARN" "No se encontró proceso en puerto $PORT"
+    fi
+done
 
-if [[ -n "$QUARKUS_PID" ]]; then
-    log "INFO" "Deteniendo proceso Quarkus (PID: $QUARKUS_PID) en puerto 8080..."
-    kill $QUARKUS_PID 2>/dev/null || true
-    sleep 2
-    log "SUCCESS" "Backend detenido"
-else
-    log "WARN" "No se encontró proceso en puerto 8080"
-fi
+sleep 2
 
 JAVA_PIDS=$(pgrep -f "quarkus" 2>/dev/null || true)
 if [[ -n "$JAVA_PIDS" ]]; then

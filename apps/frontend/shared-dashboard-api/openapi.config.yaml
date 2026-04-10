@@ -1,0 +1,18 @@
+# OpenAPI Generator configuration for TypeScript
+generatorName: typescript-fetch
+output: ./src
+inputSpec: ../../../contracts/openapi/dashboard.yaml
+
+# Package
+variableNamingConvention: camelCase
+modelPackage: models
+apiPackage: api
+
+# TypeScript options
+supportsES6: true
+modelPropertiesNaming: original
+nullablePrimitives: type
+
+# Options
+enumPropertyNaming: original
+generateAliasAsModel: false

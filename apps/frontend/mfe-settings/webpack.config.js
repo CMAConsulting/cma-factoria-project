@@ -56,6 +56,11 @@ module.exports = {
           requiredVersion: deps['react-dom'],
           eager: true,
         },
+        '@cma-factoria/shared-settings-api': {
+          singleton: true,
+          requiredVersion: deps['@cma-factoria/shared-settings-api'],
+          eager: true,
+        },
       },
     }),
     new HtmlWebpackPlugin({
