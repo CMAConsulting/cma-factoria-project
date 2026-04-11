@@ -1,0 +1,20 @@
+@startuml
+
+title Validaciones de configuracion
+
+actor Usuario
+participant "Frontend React" as FE
+participant Validacion as Validator
+
+== Intento fallido ==
+Usuario ->> FE : Envia configuracion invalida
+FE ->> Validator : validar payload
+Validator ->> Validator : Validaciones fallan (required: applicationName)
+Validator --> FE : 400 Bad Request
+note right of Validator : {error: "INVALID_REQUEST"}
+
+== Intento exitoso ==
+Usuario ->> FE : Envia configuracion completa
+FE ->> Validator : validar payload
+Validator --> FE : 200 OK
+@enduml

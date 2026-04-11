@@ -1,0 +1,18 @@
+@startuml
+title Secuencia - Módulo Dashboard
+
+actor Usuario
+participant "Frontend (React)" as FE
+participant "API Gateway" as APIGW
+participant "Dashboard Service" as DashSrv
+database "PostgreSQL\n(dashboard)" as DB
+
+Usuario ->> FE : carga página Dashboard
+FE ->> APIGW : GET /dashboard/summary
+APIGW ->> DashSrv : fetchSummary()
+DashSrv ->> DB : SELECT * FROM summary …
+DB --> DashSrv : rows
+DashSrv --> APIGW : 200 OK\n{summary}
+APIGW --> FE : 200 OK\n{summary}
+FE --> Usuario : renderiza resumen
+@enduml

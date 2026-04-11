@@ -1,0 +1,26 @@
+@startuml
+title Flujo de configuración general de aplicación
+actor Usuario
+
+participant "Frontend (React)" as FE
+participant "Backend API" as API
+participant "Settings Service" as SettingsSvc
+participant "Database" as DB
+
+Usuario ->> FE : Navega a "Configuración General"
+FE ->> API : GET /settings/general
+API ->> SettingsSvc : getGeneralSettings()
+SettingsSvc ->> DB : SELECT * FROM settings
+DB --> SettingsSvc : Row: {applicationName, environment, timezone...}
+SettingsSvc --> API : {generalSettings}
+API --> FE : 200 OK {generalSettings}
+FE ->> Usuario : Muestra formulario de configuración
+Usuario ->> FE : Modifica valores (ej: environment)
+FE ->> API : PATCH /settings/general {updatedSettings}
+API ->> SettingsSvc : updateGeneralSettings(updatedSettings)
+SettingsSvc ->> DB : UPDATE settings SET ...
+DB --> SettingsSvc : OK
+SettingsSvc --> API : Success
+API --> FE : 204 No Content
+FE ->> Usuario : Mostrar confirmación ✅
+@enduml

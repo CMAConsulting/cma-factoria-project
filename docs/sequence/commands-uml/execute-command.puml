@@ -1,0 +1,24 @@
+@startuml
+title Ejecución de Comando
+actor Usuario
+participant "Frontend" as FE
+participant "API Gateway" as APIGW
+participant "Commands Service" as CmdSrv
+participant "Command Processor" as CmdProc
+database "PostgreSQL" as DB
+
+Usuario ->> FE : Envía comando\n{command: "deploy", payload: {...}}
+FE ->> APIGW : POST /commands\n{CommandRequest}
+APIGW ->> CmdSrv : executeCommand(request)
+CmdSrv ->> CmdSrv : validateRequest()
+CmdSrv ->> CmdSrv : deserializePayload()
+CmdSrv ->> CmdProc : processCommand(payload)
+CmdProc ->> DB : INSERT command\n(status: pending)
+DB --> CmdProc : OK (id: cmd-uuid)
+CmdProc ->> CmdProc : changeStatus(processing)
+CmdProc ->> DB : UPDATE status = processing
+CmdProc --> CmdSrv : result {id, status: pending}
+CmdSrv --> APIGW : 202 Accepted\n{CommandResponse}
+APIGW --> FE : 202 {id, status}
+FE --> Usuario : Comando enviado\nID: cmd-uuid
+@enduml

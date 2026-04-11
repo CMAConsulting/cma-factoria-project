@@ -64,12 +64,13 @@
 
 ## Permisos por Agente
 
-| Agente | Bash | Read | Write |
-|--------|------|------|-------|
-| Oscar | ask | allow | allow |
-| Scout | allow | allow | allow |
-| Ivan | allow | allow | allow |
-| Jester | allow | allow | allow |
+| Agente  | Bash | Read | Write |
+|---------|------|------|-------|
+| Oscar   | ask | allow | allow |
+| Scout   | allow | allow | allow |
+| Ivan    | allow | allow | allow |
+| Jester  | allow | allow | allow |
+| Dbforge | allow | allow | allow |
 
 ## Definiciones de APIs (API First)
 

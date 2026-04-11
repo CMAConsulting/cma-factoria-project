@@ -1,0 +1,19 @@
+@startuml
+title Secuencia - Módulo Commands
+
+actor Usuario
+participant "API Gateway" as APIGW
+participant "Commands Service" as CmdSrv
+participant "Command Processor" as CmdProc
+database "PostgreSQL\n(commands)" as DB
+
+Usuario ->> APIGW : POST /commands\n{command, payload}
+APIGW ->> CmdSrv : validateRequest()
+CmdSrv ->> CmdSrv : deserializePayload()
+CmdSrv ->> CmdProc : processCommand(payload)
+CmdProc ->> DB : INSERT command_record
+DB --> CmdProc : OK
+CmdProc --> CmdSrv : result
+CmdSrv --> APIGW : 201 Created\n{jobId}
+APIGW --> Usuario : 201 Created\n{jobId}
+@enduml

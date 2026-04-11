@@ -1,0 +1,21 @@
+@startuml
+title Gestión de notificaciones
+actor Usuario
+
+participant "Frontend (React)" as FE
+participant "Notifications Service" as NotifSvc
+participant "Notification Store" as NotifStorage
+
+Usuario ->> FE : Abre sección "Notificaciones"
+FE ->> NotifSvc : GET /settings/notifications
+NotifSvc ->> NotifStorage : Load notification settings
+NotifStorage --> NotifSvc : {emailOnCompletion, pushOnError...}
+NotifSvc --> FE : 200 OK {settings}
+FE ->> Usuario : Muestra preferencias actuales
+Usuario ->> FE : Activa "emailOnCommandCompletion"
+FE ->> NotifSvc : PATCH /settings/notifications {newSettings}
+NotifSvc ->> NotifStorage : Update settings
+NotifStorage --> NotifSvc : Updated successfully
+NotifSvc --> FE : 200 OK
+FE ->> Usuario : Confirmar cambios 🎉
+@enduml

@@ -98,6 +98,7 @@ El shell define variables CSS en `:root` (`--bg-void`, `--accent-primary: #ff6b3
 | **Scout** | Investigador | Analizar código y generar SPEC.md |
 | **Ivan** | Implementador | Escribir código según un plan/SPEC |
 | **Jester** | QA / Validador | Verificar builds, puertos y compliance con SPEC |
+| **DBForge** | Base de datos | Crear o modificar tablas, SPs e índices PostgreSQL |
 
 Definidos en `.claude/agents/` con el contenido inlineado. La fuente canónica está en `.opencode/agent/` (para OpenCode).
 

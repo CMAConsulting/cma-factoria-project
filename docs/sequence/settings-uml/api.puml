@@ -1,0 +1,26 @@
+@startuml
+title Flujo de configuración de API
+actor Usuario
+
+participant "Frontend (React)" as FE
+participant "Backend API" as API
+participant "API Service" as ApiSvc
+participant "Config Store" as Config
+
+Usuario ->> FE : Cambia a pestaña "API Settings"
+FE ->> API : GET /settings/api
+API ->> ApiSvc : loadApiConfig()
+ApiSvc ->> Config : Read API configuration
+Config --> ApiSvc : {apiBaseUrl, timeoutMs, caching}
+ApiSvc --> API : {apiSettings}
+API --> FE : 200 OK {apiSettings}
+FE ->> Usuario : Muestra configuración actual
+Usuario ->> FE : Edita timeoutMs a 45000
+FE ->> API : PATCH /settings/api {newTimeout}
+API ->> ApiSvc : updateApiConfig(newTimeout)
+ApiSvc ->> Config : Save new timeout
+Config --> ApiSvc : Updated successfully
+ApiSvc --> API : OK
+API --> FE : 200 OK {updatedSettings}
+FE ->> Usuario : Actualiza la interfaz
+@enduml
