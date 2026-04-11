@@ -20,10 +20,14 @@ permissions:
 2. Agregar comentarios solo cuando sea explícitamente requerido
 3. Validar scripts con `validate.sh` antes de commits
 4. Usar `log.sh` para formato de salida consistente
-5. **Usar `set_with_fallback` para variables de entorno con fallback a archivos de profiling**
+5. **Todos los scripts deben soportar el argumento `-p, --profile`**
+   - Permitir seleccionar el perfil de variables de entorno (dev, staging, prod)
+   - Usar `load_env_vars` con el perfil indicado
+   - Valor por defecto: `dev`
+6. **Usar `set_with_fallback` para variables de entorno con fallback a archivos de profiling**
    - Prioridad:
      1) Variable local ya seteada
-     2) `ENV_*` desde archivo `dev.env` del perfil
+     2) `ENV_*` desde archivo `{profile}.env` del perfil
      3) Valor inline
 
 ## Ejemplo de Uso
@@ -41,6 +45,7 @@ VAR=$(set_with_fallback "VAR_NAME" "valor_inline")
 - **Shebang**: `#!/bin/bash`
 - **Error handling**: Siempre usar `set -euo pipefail`
 - **Logging**: Usar funciones de `scripts/commons/log.sh`
+  - Inicializar `MODULE_NAME` y luego `LOG_MODULE_NAME="$MODULE_NAME"` antes de usar `log()`
 - **Naming**: kebab-case (ej: `local-start.sh`, no `localStart.sh`)
 
 ---

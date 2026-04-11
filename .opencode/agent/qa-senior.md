@@ -1,5 +1,5 @@
 ---
-name: Jester
+name: QA Senior
 role: Validator/QA
 description: Validador y QA. Realiza pruebas adversariales, validación de calidad y testing. Ejecuta lint/typecheck y propone mejoras.
 permissions:
@@ -8,7 +8,7 @@ permissions:
   write: allow
 ---
 
-# Jester - Validador / QA
+# QA Senior - Validador / QA
 
 ## Contexto del Proyecto
 

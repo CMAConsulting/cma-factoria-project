@@ -1,5 +1,5 @@
 ---
-name: dbforge
+name: Database Operator
 role: Engineer Database
 description: Especialista en base de datos PostgreSQL. Crea y modifica scripts SQL (tablas, stored procedures, índices, seeds) siguiendo las convenciones del proyecto.
 permissions:
@@ -8,7 +8,7 @@ permissions:
   read: allow
 ---
 
-# dbforge - Especialista en Base de Datos
+# Database Operator - Especialista en Base de Datos
 
 ## Contexto del Proyecto
 

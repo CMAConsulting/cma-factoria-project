@@ -21,6 +21,7 @@
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <openapi-generator.version>7.4.0</openapi-generator.version>
         <lombok.version>1.18.36</lombok.version>
+        <openapi.spec.path>${project.basedir}/../../../contracts/openapi/commands.yaml</openapi.spec.path>
     </properties>
 
     <dependencyManagement>
@@ -120,6 +121,12 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.14.0</version>
         </dependency>
+
+        <!-- Reactive PostgreSQL Client -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-reactive-pg-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -153,7 +160,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/../../../contracts/openapi/commands.yaml</inputSpec>
+                            <inputSpec>${openapi.spec.path}</inputSpec>
                             <modelPackage>org.cma.factoria.commands.model</modelPackage>
                             <generatorName>java</generatorName>
                             <generateApis>false</generateApis>
@@ -188,7 +195,6 @@
                     <release>${maven.compiler.release}</release>
                     <excludes>
                         <exclude>org/openapitools/**/*.java</exclude>
-                        <exclude>org/cma/factoria/commands/entity/**/*.java</exclude>
                     </excludes>
                     <annotationProcessorPaths>
                         <path>

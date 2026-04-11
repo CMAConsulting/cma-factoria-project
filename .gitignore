@@ -23,6 +23,8 @@ coverage/
 tmp/
 temp/
 
+.classpath
+.factorypath
 .vscode/
 .idea/
 *.swp

@@ -27,6 +27,14 @@ quarkus:
   # Jackson - exclude null values
   jackson:
     serialization-inclusion: NON_NULL
+  # Database Configuration
+  datasource:
+    db-kind: postgresql
+    reactive:
+      postgresql:
+        url: ${DB_URL:postgresql://localhost:5432/command_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
 
 # MP JWT Configuration  
 mp:
