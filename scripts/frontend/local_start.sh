@@ -1,6 +1,6 @@
 #!/bin/bash
 # CMA Factoria - Frontend Local Start Script
-# Description: Inicializa el frontend (shell + mfe-commands + mfe-settings) localmente
+# Description: Inicializa el frontend (shell + MFEs + shared APIs) localmente
 
 set -e
 
@@ -16,23 +16,26 @@ log "INFO" "=========================================="
 
 FRONTEND_DIR="$PROJECT_ROOT/apps/frontend"
 
-for app in mfe-principal mfe-commands mfe-settings shared-api mfe-dashboard; do
+for app in mfe-principal mfe-commands mfe-settings shared-commands-api mfe-dashboard; do
     if [[ ! -d "$FRONTEND_DIR/$app" ]]; then
         handle_error "Directorio de frontend no encontrado: $FRONTEND_DIR/$app"
     fi
 done
 
-log "INFO" "Instalando dependencias de shared-api..."
-cd "$FRONTEND_DIR/shared-api"
+log "INFO" "Instalando dependencias de shared-commands-api..."
+cd "$FRONTEND_DIR/shared-commands-api"
 if [[ -f "package.json" ]]; then
     npm install --silent 2>/dev/null || npm install
-    log "SUCCESS" "shared-api dependencies installed"
+    npm run build 2>/dev/null || true
+    npm link 2>/dev/null || true
+    log "SUCCESS" "shared-commands-api dependencies installed"
 fi
 
 log "INFO" "Instalando dependencias de mfe-commands..."
 cd "$FRONTEND_DIR/mfe-commands"
 if [[ -f "package.json" ]]; then
     npm install --silent 2>/dev/null || npm install
+    npm link @cma-factoria/shared-commands-api 2>/dev/null || true
     log "SUCCESS" "mfe-commands dependencies installed"
 fi
 

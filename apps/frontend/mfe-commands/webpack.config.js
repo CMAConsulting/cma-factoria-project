@@ -1,7 +1,18 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
+const webpack = require('webpack');
 const path = require('path');
+const dotenv = require('dotenv');
 const deps = require('./package.json').dependencies;
+
+// Cargar variables de entorno
+const env = dotenv.config().parsed || {};
+
+// Convertir a formato para DefinePlugin
+const envKeys = Object.keys(env).reduce((prev, next) => {
+  prev[`process.env.${next}`] = JSON.stringify(env[next]);
+  return prev;
+}, {});
 
 module.exports = {
   entry: './src/index.tsx',
@@ -16,6 +27,14 @@ module.exports = {
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+    ],
   },
   output: {
     publicPath: 'auto',
@@ -39,6 +58,7 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin(envKeys),
     new ModuleFederationPlugin({
       name: 'mfeCommands',
       filename: 'remoteEntry.js',

@@ -10,11 +10,12 @@ MODULE_NAME="frontend-localstop"
 
 log "INFO" "Deteniendo servicios del frontend..."
 
-log "INFO" "Buscando procesos en puertos 3000, 3001 y 3002..."
+log "INFO" "Buscando procesos en puertos 3000, 3001, 3002 y 3003..."
 
 SHELL_PID=$(lsof -ti:3000 2>/dev/null || true)
 MFE_COMMANDS_PID=$(lsof -ti:3001 2>/dev/null || true)
 MFE_SETTINGS_PID=$(lsof -ti:3002 2>/dev/null || true)
+MFE_DASHBOARD_PID=$(lsof -ti:3003 2>/dev/null || true)
 
 if [[ -n "$SHELL_PID" ]]; then
     log "INFO" "Deteniendo shell (Puerto 3000, PID: $SHELL_PID)..."
@@ -29,6 +30,11 @@ fi
 if [[ -n "$MFE_SETTINGS_PID" ]]; then
     log "INFO" "Deteniendo mfe-settings (Puerto 3002, PID: $MFE_SETTINGS_PID)..."
     kill $MFE_SETTINGS_PID 2>/dev/null || true
+fi
+
+if [[ -n "$MFE_DASHBOARD_PID" ]]; then
+    log "INFO" "Deteniendo mfe-dashboard (Puerto 3003, PID: $MFE_DASHBOARD_PID)..."
+    kill $MFE_DASHBOARD_PID 2>/dev/null || true
 fi
 
 NODE_PIDS=$(pgrep -f "webpack" 2>/dev/null || true)

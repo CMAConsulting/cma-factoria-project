@@ -1,5 +1,5 @@
 {
-  "name": "@cma-factoria/shared-api",
+  "name": "@cma-factoria/shared-commands-api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,8 @@
     "build": "tsc",
     "clean": "rm -rf dist src"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.7.2",
-    "@hey-api/openapi-ts": "^0.94.4"
+    "@hey-api/openapi-ts": "^0.94.4",
+    "typescript": "^5.7.2"
   }
 }

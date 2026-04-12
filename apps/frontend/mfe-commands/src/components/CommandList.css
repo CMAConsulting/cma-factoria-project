@@ -1,0 +1,65 @@
+.command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Loading State */
+.command-list-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: var(--text-secondary, #888);
+}
+
+/* Error State */
+.command-list-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 16px;
+  text-align: center;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.retry-btn {
+  padding: 8px 16px;
+  background: var(--bg-secondary, #1e1e1e);
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Empty State */
+.command-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: var(--text-muted, #666);
+}
+
+.empty-rule {
+  width: 40px;
+  height: 2px;
+  background: var(--text-muted, #666);
+  border-radius: 1px;
+}
