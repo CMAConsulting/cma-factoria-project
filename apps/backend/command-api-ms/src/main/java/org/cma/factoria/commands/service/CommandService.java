@@ -1,80 +1,81 @@
 package org.cma.factoria.commands.service;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.cma.factoria.commands.entity.CommandEntity;
 import org.cma.factoria.commands.model.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import org.cma.factoria.commands.repository.CommandRepository;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class CommandService {
 
-    // Static map para persistencia en modo dev
-    private static final Map<UUID, CommandResponse> commands = new ConcurrentHashMap<>();
+    @Inject
+    CommandRepository repository;
 
-    public CommandResponse executeCommand(CommandRequest request) {
-        UUID id = UUID.randomUUID();
+    public Uni<CommandResponse> executeCommand(CommandRequest request) {
+        String command = request.getCommand();
         
-        CommandResponse response = CommandResponse.builder()
-            .id(id)
-            .status(CommandResponse.StatusEnum.PENDING)
-            .command(request.getCommand())
-            .payload(request.getPayload())
-            .metadata(request.getMetadata())
-            .createdAt(java.time.OffsetDateTime.now())
-            .build();
+        return repository.insert(command)
+            .map(this::entityToResponse);
+    }
+
+    public Uni<CommandListResponse> listCommands(String status, String source, Integer limit, Integer offset) {
+        int lim = limit != null ? limit : 20;
+        int off = offset != null ? offset : 0;
         
-        commands.put(id, response);
-        
+        return repository.findAll(status, lim, off)
+            .map(list -> {
+                CommandListResponse response = new CommandListResponse();
+                response.setItems(list.stream().map(this::entityToResponse).toList());
+                response.setTotal(list.size());
+                response.setLimit(lim);
+                response.setOffset(off);
+                return response;
+            });
+    }
+
+    public Uni<CommandResponse> getCommand(String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            return repository.findById(uuid)
+                .map(entity -> entity != null ? entityToResponse(entity) : null);
+        } catch (Exception e) {
+            return Uni.createFrom().nullItem();
+        }
+    }
+
+    public Uni<CommandResult> getCommandResult(String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            return repository.findById(uuid)
+                .map(entity -> entity != null ? entityToResult(entity) : null);
+        } catch (Exception e) {
+            return Uni.createFrom().nullItem();
+        }
+    }
+
+    private CommandResponse entityToResponse(CommandEntity entity) {
+        CommandResponse response = new CommandResponse();
+        response.setId(entity.getId());
+        response.setStatus(CommandResponse.StatusEnum.fromValue(entity.getStatus().toString()));
+        response.setCommand(entity.getCommand());
+        response.setCreatedAt(entity.getCreatedAt());
+        response.setCompletedAt(entity.getCompletedAt());
         return response;
     }
 
-    public CommandListResponse listCommands(String status, String source, Integer limit, Integer offset) {
-        limit = limit != null ? limit : 20;
-        offset = offset != null ? offset : 0;
-        
-        List<CommandResponse> filtered = commands.values().stream()
-                .sorted(Comparator.comparing(CommandResponse::getCreatedAt).reversed())
-                .toList();
-        
-        List<CommandResponse> page = filtered.stream()
-                .skip(offset)
-                .limit(limit)
-                .collect(Collectors.toList());
-        
-        return CommandListResponse.builder()
-            .items(page)
-            .total(filtered.size())
-            .limit(limit)
-            .offset(offset)
-            .build();
-    }
-
-    public CommandResponse getCommand(String id) {
-        try {
-            return commands.get(UUID.fromString(id));
-        } catch (Exception e) {
-            return null;
+    private CommandResult entityToResult(CommandEntity entity) {
+        CommandResult result = new CommandResult();
+        result.setId(entity.getId());
+        if (entity.getStatus() != null) {
+            result.setStatus(CommandResult.StatusEnum.fromValue(entity.getStatus().toString()));
         }
-    }
-
-    public CommandResult getCommandResult(String id) {
-        try {
-            UUID uuid = UUID.fromString(id);
-            CommandResponse response = commands.get(uuid);
-            
-            if (response == null) {
-                return null;
-            }
-            
-            // Si el comando existe pero no tiene resultado, retornamos un resultado vacío con el estado actual
-            return CommandResult.builder()
-                .id(response.getId())
-                .status(response.getStatus() != null ? CommandResult.StatusEnum.valueOf(response.getStatus().name()) : null)
-                .completedAt(response.getCompletedAt())
-                .build();
-        } catch (Exception e) {
-            return null;
-        }
+        result.setCompletedAt(entity.getCompletedAt());
+        return result;
     }
 }

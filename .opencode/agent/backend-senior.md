@@ -26,16 +26,48 @@ apps/backend/
 └── dashboard-api-ms/     # Dashboard Service
 ```
 
-## Paquetes Java
+## Paquetes Java - Clean Architecture
 
 ```
 src/main/java/org/cma/factoria/[service]/
 ├── endpoint/          # REST endpoints (JAX-RS/Reactive)
-│   └── *Resource.java
+│   └── *Endpoint.java
 ├── service/           # Lógica de negocio
 │   └── *Service.java
+├── repository/        # Acceso a datos - SOLO llamados a SPs
+│   └── *Repository.java
+├── mapper/           # Mapeo Row ↔ Entity
+│   └── *Mapper.java
+├── entity/           # Dominio - POJO con getters/setters
+│   └── *Entity.java
 └── model/             # NO escribir - se genera automáticamente
 ```
+
+### Reglas de Arquitectura
+
+1. **Repository**: Solo llamadas a Stored Procedures (SP)
+   - NO SELECT, INSERT, UPDATE, DELETE inline
+   - Usar SPs: `sp_insert_*`, `sp_get_*`, `sp_list_*`, `sp_count_*`
+   - Si no existe SP, crearlo en `infra/database/[service]-db/storeprocedures/`
+
+2. **Mapper**: Mapeo de Row a Entity
+   - Nunca mapear en Repository
+   - Método estático: `fromRow(Row)` → Entity
+   - Método estático: `fromRows(Iterable<Row>)` → List<Entity>
+
+3. **Entity**: Dominio puro
+   - POJO con getters/setters (usar Lombok @Getter/@Setter)
+   - NO acceso a base de datos
+   - Enums internos si son necesarios
+
+4. **Service**: Lógica de negocio
+   - Inyectar Repository
+   - Mapper para transformar Entity → Model (API)
+   - NO acceso directo a DB
+
+5. **Endpoint**: Solo recibir request y retornar response
+   - Delegar a Service
+   - Manejar errores
 
 ## Common Issues y Soluciones
 

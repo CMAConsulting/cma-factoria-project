@@ -1,5 +1,6 @@
 package org.cma.factoria.commands.endpoint;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,46 +18,42 @@ public class CommandEndpoint {
     CommandService commandService;
 
     @POST
-    public Response executeCommand(CommandRequest request) {
+    public Uni<Response> executeCommand(CommandRequest request) {
         if (request == null || StringUtils.isBlank(request.getCommand())) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(org.cma.factoria.commands.model.Error.builder()
-                            .error("INVALID_REQUEST")
-                            .message("El campo 'command' es requerido")
-                            .build())
-                    .build();
+            var err = new org.cma.factoria.commands.model.Error();
+            err.setError("INVALID_REQUEST");
+            err.setMessage("El campo 'command' es requerido");
+            return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).entity(err).build());
         }
-        CommandResponse response = commandService.executeCommand(request);
-        return Response.status(Response.Status.CREATED).entity(response).build();
+        return commandService.executeCommand(request)
+            .map(response -> Response.status(Response.Status.CREATED).entity(response).build());
     }
 
     @GET
-    public Response listCommands(
+    public Uni<Response> listCommands(
             @QueryParam("status") String status,
             @QueryParam("source") String source,
             @QueryParam("limit") Integer limit,
             @QueryParam("offset") Integer offset) {
-        CommandListResponse response = commandService.listCommands(status, source, limit, offset);
-        return Response.ok(response).build();
+        return commandService.listCommands(status, source, limit, offset)
+            .map(resp -> Response.ok(resp).build());
     }
 
     @GET
     @Path("/{id}")
-    public Response getCommand(@PathParam("id") String id) {
-        CommandResponse response = commandService.getCommand(id);
-        if (response == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        return Response.ok(response).build();
+    public Uni<Response> getCommand(@PathParam("id") String id) {
+        return commandService.getCommand(id)
+            .map(entity -> entity != null 
+                ? Response.ok(entity).build() 
+                : Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @GET
     @Path("/{id}/result")
-    public Response getCommandResult(@PathParam("id") String id) {
-        CommandResult result = commandService.getCommandResult(id);
-        if (result == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        return Response.ok(result).build();
+    public Uni<Response> getCommandResult(@PathParam("id") String id) {
+        return commandService.getCommandResult(id)
+            .map(result -> result != null 
+                ? Response.ok(result).build() 
+                : Response.status(Response.Status.NOT_FOUND).build());
     }
 }
