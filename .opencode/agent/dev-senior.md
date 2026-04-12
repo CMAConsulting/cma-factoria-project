@@ -32,15 +32,20 @@ permissions:
 - Tipos: import desde @cma-factoria/shared-api
 - UI: diseño dark empresarial (参考 shell/App.css)
 
+**Configuración CORS (Backend):**
+- En `application.yaml`: `quarkus.http.cors.enabled=${CORS_ENABLED:true}`
+- Origins: `quarkus.http.cors.origins=${CORS_ORIGINS:*}` (separados por coma)
+- Configurar en `.env` del servicio para desarrollo
+
 **Comandos útiles:**
 ```bash
 # Backend
-cd apps/backend/command-service && mvn clean compile
+cd apps/backend/command-api-ms && mvn quarkus:dev
 
 # Frontend
-cd apps/frontend/shared-api && npm run generate && npm run build
-cd apps/frontend/mfe-commands && npm run build
-cd apps/frontend/mfe-principal && npm run build
+cd apps/frontend/shared-commands-api && npm run build && npm link
+cd apps/frontend/mfe-commands && npm link @cma-factoria/shared-commands-api && npm run dev
+cd apps/frontend/mfe-principal && npm run dev
 ```
 
 ## Responsabilidades

@@ -3,33 +3,35 @@
  * Maneja la lógica de presentación y delega a hooks y componentes
  */
 
+import { useState } from 'react';
 import { useCommands } from './hooks';
-import { CommandList } from './components';
+import { CommandList, CommandForm } from './components';
+import type { CommandRequest, CommandResponse } from '@cma-factoria/shared-commands-api';
 import './App.css';
 
 export default function CommandsApp() {
-  // Usa el hook para estado y acciones
-  const { commands, loading, error, refresh, create, deploy } = useCommands();
+  const [showForm, setShowForm] = useState(false);
+  const { commands, loading, error, refresh, create } = useCommands();
 
-  // Handler: crear nuevo comando
-  const handleCreateNew = async () => {
-    try {
-      // Deploy de ejemplo a staging
-      await deploy('staging', '1.0.0');
-    } catch (err) {
-      console.error('Error creating command:', err);
-    }
+  const handleCreateNew = () => {
+    setShowForm(true);
   };
 
-  // Handler: reintentar
+  const handleFormSubmit = async (request: CommandRequest) => {
+    await create(request);
+    setShowForm(false);
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+  };
+
   const handleRetry = () => {
     refresh();
   };
 
-  // Handler: click en comando
   const handleCommandClick = (command: CommandResponse) => {
     console.log('Command clicked:', command.id);
-    // Aquí puedes navegar a detalles, abrir modal, etc.
   };
 
   return (
@@ -52,9 +54,13 @@ export default function CommandsApp() {
         onRetry={handleRetry}
         onCommandClick={handleCommandClick}
       />
+
+      {showForm && (
+        <CommandForm
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+        />
+      )}
     </div>
   );
 }
-
-// Re-export types para方便 uso
-import type { CommandResponse } from '@cma-factoria/shared-commands-api';

@@ -9,3 +9,4 @@ export {
   CommandListError, 
   CommandListEmpty 
 } from './CommandList';
+export { CommandForm } from './CommandForm';
