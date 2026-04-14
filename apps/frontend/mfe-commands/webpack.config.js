@@ -3,10 +3,13 @@ const { ModuleFederationPlugin } = require('webpack').container;
 const webpack = require('webpack');
 const path = require('path');
 const dotenv = require('dotenv');
+const fs = require('fs');
 const deps = require('./package.json').dependencies;
 
-// Cargar variables de entorno
-const env = dotenv.config().parsed || {};
+// Cargar variables de entorno según el perfil
+const envFile = process.env.PROFILE ? `./${process.env.PROFILE}.env` : './dev.env';
+const envPath = fs.existsSync(envFile) ? envFile : './.env';
+const env = dotenv.config({ path: envPath }).parsed || {};
 
 // Convertir a formato para DefinePlugin
 const envKeys = Object.keys(env).reduce((prev, next) => {

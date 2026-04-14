@@ -1,7 +1,14 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 const path = require('path');
+const dotenv = require('dotenv');
+const fs = require('fs');
 const deps = require('./package.json').dependencies;
+
+// Cargar variables de entorno según el perfil
+const envFile = process.env.PROFILE ? `./${process.env.PROFILE}.env` : './dev.env';
+const envPath = fs.existsSync(envFile) ? envFile : './.env';
+const env = dotenv.config({ path: envPath }).parsed || {};
 
 module.exports = {
   entry: './src/index.tsx',

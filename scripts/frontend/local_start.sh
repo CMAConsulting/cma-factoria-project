@@ -1,6 +1,7 @@
 #!/bin/bash
 # CMA Factoria - Frontend Local Start Script
 # Description: Inicializa el frontend (shell + MFEs + shared APIs) localmente
+# Usage: ./local_start.sh --profile <dev|staging|prod>
 
 set -e
 
@@ -10,8 +11,25 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$PROJECT_ROOT/scripts/commons/log.sh"
 MODULE_NAME="frontend-localstart"
 
+# Parsear argumentos
+PROFILE="dev"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --profile)
+            PROFILE="$2"
+            shift 2
+            ;;
+        *)
+            echo "Usage: $0 --profile <dev|staging|prod>"
+            exit 1
+            ;;
+    esac
+done
+
 log "INFO" "=========================================="
 log "INFO" "Iniciando Frontend - CMA Factoria"
+log "INFO" "Perfil: $PROFILE"
 log "INFO" "=========================================="
 
 FRONTEND_DIR="$PROJECT_ROOT/apps/frontend"
@@ -21,6 +39,27 @@ for app in mfe-principal mfe-commands mfe-settings shared-commands-api mfe-dashb
         handle_error "Directorio de frontend no encontrado: $FRONTEND_DIR/$app"
     fi
 done
+
+# Función para cargar variables de entorno por perfil
+load_profile_env() {
+    local app_dir="$1"
+    local env_file="$app_dir/${PROFILE}.env"
+    
+    if [[ -f "$env_file" ]]; then
+        log "INFO" "Cargando variables de entorno desde: $env_file"
+        set -a
+        source "$env_file"
+        set +a
+    else
+        log "WARN" "No se encontró archivo de perfil: $env_file"
+    fi
+}
+
+# Cargar profiles para cada MFE
+load_profile_env "$FRONTEND_DIR/mfe-commands"
+load_profile_env "$FRONTEND_DIR/mfe-settings"
+load_profile_env "$FRONTEND_DIR/mfe-dashboard"
+load_profile_env "$FRONTEND_DIR/mfe-principal"
 
 log "INFO" "Instalando dependencias de shared-commands-api..."
 cd "$FRONTEND_DIR/shared-commands-api"
@@ -84,7 +123,7 @@ MFE_SETTINGS_PID=$!
 log "INFO" "Iniciando mfe-dashboard en puerto 3003..."
 cd "$FRONTEND_DIR/mfe-dashboard"
 npm run dev &
-MFE_SETTINGS_PID=$!
+MFE_DASHBOARD_PID=$!
 
 log "INFO" "Iniciando mfe-principal en puerto 3000..."
 cd "$FRONTEND_DIR/mfe-principal"
@@ -92,13 +131,14 @@ npm run dev &
 SHELL_PID=$!
 
 log "SUCCESS" "Servicios de frontend iniciados"
-log "INFO" "PIDs - MFE-Principal: $SHELL_PID, MFE-Commands: $MFE_COMMANDS_PID, MFE-Settings: $MFE_SETTINGS_PID"
+log "INFO" "PIDs - MFE-Principal: $SHELL_PID, MFE-Commands: $MFE_COMMANDS_PID, MFE-Settings: $MFE_SETTINGS_PID, MFE-Dashboard: $MFE_DASHBOARD_PID"
 log "INFO" "Presiona Ctrl+C para detener todos los servicios"
 
 cleanup() {
     log "INFO" "Deteniendo servicios..."
     kill $MFE_COMMANDS_PID 2>/dev/null || true
     kill $MFE_SETTINGS_PID 2>/dev/null || true
+    kill $MFE_DASHBOARD_PID 2>/dev/null || true
     kill $SHELL_PID 2>/dev/null || true
     log "SUCCESS" "Servicios detenidos"
     exit 0
