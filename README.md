@@ -53,11 +53,17 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 │   ├── backend/
 │   ├── frontend/
 │   ├── history/
+│   ├── latex/
 │   └── scripts/
 │
-└── .claude/                         # Configuración Claude Code
-    ├── agents/                      # Oscar, Ivan, Jester, Scout
-    └── commands/                    # Skills como slash commands
+├── .opencode/                       # Configuración OpenCode
+│   ├── agent/                       # 9 agentes especializados
+│   ├── skills/                      # Conocimiento especializado
+│   └── hooks/                       # Validaciones pre-commit
+│
+├── .claude/                         # Configuración Claude Code
+│   ├── agents/                      # Alias de agentes
+│   └── commands/                    # Skills como slash commands
 ```
 
 ## Desarrollo local
@@ -105,16 +111,21 @@ Los MFEs importan desde su shared-api correspondiente:
 - `mfe-dashboard` → `@cma-factoria/shared-dashboard-api`
 - `mfe-settings` → `@cma-factoria/shared-settings-api`
 
-## Agentes Claude Code
+## Agentes OpenCode
 
-El proyecto tiene 4 agentes especializados en `.claude/agents/`:
+El proyecto tiene 9 agentes especializados en `.opencode/agent/`:
 
-| Agente | Rol |
-|--------|-----|
-| **Oscar** | Orquestador — coordina el flujo scout → ivan → jester |
-| **Scout** | Investigador — analiza el repo y genera SPEC.md |
-| **Ivan** | Implementador — escribe código según el SPEC |
-| **Jester** | QA — valida builds, puertos y compliance |
+| Agente | Rol | Responsabilidades |
+|--------|-----|------------------|
+| **Product Owner** | Orquestador | Coordina el SDLC, delega tareas, mantiene trazabilidad |
+| **Optimizer** | Investigador | Analiza código, genera SPEC.md, documenta estructura |
+| **Dev Senior** | Implementador | Código siguiendo SPEC.md, sigue patrones del proyecto |
+| **Backend Senior** | Implementador Backend | Quarkus/Java, CORS, PostgreSQL, troubleshooting |
+| **Frontend Senior** | Implementador Frontend | React/TypeScript/MFEs, Module Federation |
+| **QA Senior** | Validador | Pruebas adversariales, builds, compliance |
+| **Database Operator** | Ingeniero BD | Tablas, stored procedures, índices PostgreSQL |
+| **Bash Specialist** | Script Developer | Scripts Bash, soporte --profile, scripts/commons/ |
+| **UML-Spec** | Modelador | Diagramas UML PlantUML, conversión OpenAPI |
 
 La definición canónica de cada agente está en `.opencode/agent/`.
 
@@ -197,7 +208,7 @@ cd .opencode
 npm install
 ```
 
-El proyecto incluye configuración en `.opencode/` — agentes (`agent/`), skills (`skills/`) y hooks (`hooks/`) se cargan automáticamente al abrir OpenCode en este directorio.
+El proyecto incluye configuración en `.opencode/` — agentes (9 roles especializados), skills (`skills/`) y hooks (`hooks/`) se cargan automáticamente al abrir OpenCode en este directorio.
 
 ---
 
