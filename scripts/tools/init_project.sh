@@ -193,6 +193,15 @@ cat > "$NEW_PROJECT_DIR/BEADS.json" << 'EOF'
 }
 EOF
 
+# ============================================
+# Inicializar Git y hacer commit inicial
+# ============================================
+echo "Inicializando repositorio Git..."
+cd "$NEW_PROJECT_DIR"
+git init
+git add -A
+git commit -m 'Commit inicial'
+
 echo "==========================================="
 echo "Proyecto '$NEW_PROJECT_NAME' creado exitosamente"
 echo "Ubicación: $NEW_PROJECT_DIR"
