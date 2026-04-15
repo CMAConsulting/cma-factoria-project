@@ -1,5 +1,7 @@
 \documentclass[12pt,a4paper,spanish]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[spanish,english]{babel}
+\selectlanguage{spanish}
 \usepackage[T1]{fontenc}
 \usepackage{geometry}
 \geometry{margin=2.5cm}
@@ -10,6 +12,7 @@
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \usepackage{listings}
+\usepackage{url}
 \usepackage{longtable}
 \usepackage{pdfpages}
 
@@ -21,10 +24,14 @@
     colorlinks=true,
     linkcolor=cma-blue,
     filecolor=magenta,
-    urlcolor=cma-blue,
+    urlcolor=cma-accent,
     pdftitle={SYN FactorIA - Agente de Entrega Inteligente},
-    pdfauthor={Synopsis SA}
+    pdfauthor={Synopsis SA},
+    breaklinks=true
 }
+
+% Configuración de URL
+\urlstyle{same}
 
 \AddToHook{cmd/section/before}{\clearpage}
 
@@ -635,7 +642,6 @@ SYN FactorIA representa una oportunidad estratégica para Synopsis SA de:
 \subsection{Próximos Pasos}
 
 \begin{enumerate}
-    \item Aprobar inversión en infraestructura de desarrollo
     \item Seleccionar proyecto piloto para validación
     \item Capacitar equipo en herramientas y procesos
     \item Establecer métricas de éxito y KPIs
@@ -644,13 +650,58 @@ SYN FactorIA representa una oportunidad estratégica para Synopsis SA de:
 
 \newpage
 
-\section*{Anexo: Referencias y Citations}
+\section*{Anexo: Referencias y citaciones}
 
-\subsection{Referencias Académicas}
+\subsection{Referencias Académicas con Enlaces Verificados}
 
-\begin{thebibliography}{99}
+\begin{enumerate}
 
-\end{thebibliography}
+\item \textbf{Peng et al. (2023)} --- \textit{The Impact of AI on Developer Productivity: Evidence from GitHub Copilot}. Experimento con 1,974 desarrolladores de Microsoft y Accenture que demuestra incrementos de 12.92\% a 21.83\% en pull requests por semana.\\
+\url{https://arxiv.org/abs/2302.06590}
+
+\item \textbf{Cui et al. (2024)} --- \textit{The Productivity Effects of Generative AI: Evidence from a Field Experiment with GitHub Copilot}. Estudio de campo publicado por MIT Exploration of Generative AI.\\
+\url{https://mit-genai.pubpub.org/pub/v5iixksv/release/2}
+
+\item \textbf{Ziegler et al. (2024)} --- \textit{Measuring GitHub Copilot's Impact on Productivity}. Communications of the ACM, 67(3), 54-63. Estudio con 2,631 desarrolladores sobre correlación aceptación/productividad.\\
+\url{https://cacm.acm.org/research/measuring-github-copilots-impact-on-productivity/}
+
+\item \textbf{Smit et al. (2024)} --- \textit{The Impact of GitHub Copilot on Developer Productivity from a Software Engineering Body of Knowledge Perspective}. AMCIS 2024 Proceedings. Caso de estudio en BMW Group usando SPACE framework.\\
+\url{https://aisel.aisnet.org/amcis2024/ai_aa/ai_aa/10}
+
+\item \textbf{Pandey (2024)} --- \textit{Transforming Software Development: Evaluating the Efficiency and Challenges of GitHub Copilot in Real-World Projects}. Evalúa hasta 50\% de tiempo ahorrado en documentación y 30-40\% en tareas repetitivas.\\
+\url{https://ui.adsabs.harvard.edu/abs/2024arXiv240617910P/abstract}
+
+\item \textbf{Trandafir (2024)} --- \textit{Vertical Slice Architecture}. Baeldung. Guía práctica sobre el patrón arquitectónico que organiza código por capabilities de negocio.\\
+\url{https://www.baeldung.com/java-vertical-slice-architecture}
+
+\item \textbf{Yakhin (2024)} --- \textit{Comparative Review of Clean Architecture and Vertical Slice Architecture Approaches for Enterprise .NET Applications}. International Journal of Advanced Artificial Intelligence Research.\\
+\url{https://aimjournals.com/index.php/ijaair/article/view/413}
+
+\item \textbf{Mane et al. (2024)} --- \textit{Micro Frontend Architecture With Webpack Module Federation: Enhancing Modularity}. Journal of Quantum Science and Technology, 1(4).\\
+\url{https://www.researchgate.net/publication/388841942}
+
+\item \textbf{Antunes (2024)} --- \textit{Investigating Benefits and Limitations of Migrating to a Micro-Frontends Architecture}. SBES'24 - Brazilian Symposium on Software Engineering.\\
+\url{https://arxiv.org/pdf/2407.15829}
+
+\item \textbf{Lando \& Hasselbring (2025)} --- \textit{Toward Bundler-Independent Module Federations: Enabling Typed Micro-Frontend Architectures}. Introduce BIMF como extensión de Module Federation 2.0.\\
+\url{https://arxiv.org/abs/2501.18225}
+
+\item \textbf{Hossain (2026)} --- \textit{Contract-First API Development with OpenAPI 3.1: Code Generation, Schema Validation and Breaking Change Detection in CI}. Disciplina que trata OpenAPI como fuente única de verdad.\\
+\url{https://mdsanwarhossain.me/blog-contract-first-openapi.html}
+
+\item \textbf{Sturgeon (2025)} --- \textit{The Perfect Modern OpenAPI Workflow}. Bump.sh. Framework para gobierno de APIs con contract testing.\\
+\url{https://docs.bump.sh/guides/openapi/specification/v3.1/the-perfect-modern-openapi-workflow}
+
+\item \textbf{Franchin (2025)} --- \textit{Performance Benchmark: Spring Boot vs. Quarkus vs. Micronaut}. ITNEXT. Benchmark que demuestra 45\% más throughput en Quarkus.\\
+\url{https://itnext.io/performance-benchmark-spring-boot-3-4-3-vs-quarkus-3-19-3-vs-micronaut-4-7-6-aaadfb0382b4}
+
+\item \textbf{Microsoft Research (2024)} --- \textit{Magentic-One: A Generalist Multi-Agent System for Solving Complex Tasks}. Sistema multi-agente con Orchestrator que logra 38\% en GAIA y 32.8\% en WebArena.\\
+\url{https://www.microsoft.com/en-us/research/publication/magentic-one/}
+
+\item \textbf{He et al. (2025)} --- \textit{LLM-Based Multi-Agent Systems for Software Engineering: Literature Review, Vision and the Road Ahead}. Journal of Systems and Software. Revisión sistemática de 71 estudios.\\
+\url{https://arxiv.org/pdf/2404.04834}
+
+\end{enumerate}
 
 \subsection{Glosario}
 

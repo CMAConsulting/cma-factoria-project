@@ -216,6 +216,8 @@ El proyecto incluye configuración en `.opencode/` — agentes (9 roles especial
 
 | Documento | Contenido |
 |-----------|-----------|
+| [cma-factoria.tex](docs/latex/cma-factoria.tex) | Documento LaTeX para presentaciones (PDF) |
+| [references.bib](docs/latex/references.bib) | Bibliografía BibTeX con 15 referencias académicas |
 | [command-service.md](docs/backend/command-service.md) | Backend REST API — comandos |
 | [dashboard-service.md](docs/backend/dashboard-service.md) | Backend REST API — dashboard |
 | [settings-service.md](docs/backend/settings-service.md) | Backend REST API — configuración |
@@ -229,3 +231,35 @@ El proyecto incluye configuración en `.opencode/` — agentes (9 roles especial
 | [adr-001](docs/architecture/adr-001-canal-comandos-remotos.md) | Decisión: Canal de comandos remotos |
 | [scripts/backend.md](docs/scripts/backend.md) | Scripts de backend |
 | [scripts/frontend.md](docs/scripts/frontend.md) | Scripts de frontend |
+
+### Compilación del Documento LaTeX
+
+```bash
+cd docs/latex
+pdflatex cma-factoria.tex
+biber cma-factoria
+pdflatex cma-factoria.tex
+pdflatex cma-factoria.tex
+```
+
+### Referencias Académicas Verificadas
+
+El documento LaTeX incluye 15 referencias académicas con enlaces verificados:
+
+| # | Referencia | URL |
+|---|-----------|-----|
+| 1 | Peng et al. (2023) - GitHub Copilot Impact | [arXiv:2302.06590](https://arxiv.org/abs/2302.06590) |
+| 2 | Cui et al. (2024) - Field Experiment | [MIT PubPub](https://mit-genai.pubpub.org/pub/v5iixksv/release/2) |
+| 3 | Ziegler et al. (2024) - CACM | [ACM CACM](https://cacm.acm.org/research/measuring-github-copilots-impact-on-productivity/) |
+| 4 | Smit et al. (2024) - AMCIS BMW | [AISNet](https://aisel.aisnet.org/amcis2024/ai_aa/ai_aa/10) |
+| 5 | Pandey (2024) - Real-World Projects | [NASA ADS](https://ui.adsabs.harvard.edu/abs/2024arXiv240617910P/abstract) |
+| 6 | Trandafir (2024) - Vertical Slice | [Baeldung](https://www.baeldung.com/java-vertical-slice-architecture) |
+| 7 | Yakhin (2024) - Comparative Review | [IJAIR](https://aimjournals.com/index.php/ijaair/article/view/413) |
+| 8 | Mane et al. (2024) - Micro Frontends | [ResearchGate](https://www.researchgate.net/publication/388841942) |
+| 9 | Antunes (2024) - SBES Migration | [arXiv:2407.15829](https://arxiv.org/pdf/2407.15829) |
+| 10 | Lando & Hasselbring (2025) - BIMF | [arXiv:2501.18225](https://arxiv.org/abs/2501.18225) |
+| 11 | Hossain (2026) - Contract-First API | [mdsanwarhossain.me](https://mdsanwarhossain.me/blog-contract-first-openapi.html) |
+| 12 | Sturgeon (2025) - OpenAPI Workflow | [Bump.sh](https://docs.bump.sh/guides/openapi/specification/v3.1/the-perfect-modern-openapi-workflow) |
+| 13 | Franchin (2025) - Quarkus Benchmark | [ITNEXT](https://itnext.io/performance-benchmark-spring-boot-3-4-3-vs-quarkus-3-19-3-vs-micronaut-4-7-6-aaadfb0382b4) |
+| 14 | Microsoft (2024) - Magentic-One | [MSR](https://www.microsoft.com/en-us/research/publication/magentic-one-a-generalist-multi-agent-system-for-solving-complex-tasks/) |
+| 15 | He et al. (2025) - LLM Multi-Agent SE | [arXiv:2404.04834](https://arxiv.org/pdf/2404.04834) |
