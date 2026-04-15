@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <quarkus.platform.artifactId>quarkus-bom</quarkus.platform.artifactId>
         <quarkus.platform.groupId>io.quarkus.platform</quarkus.platform.groupId>
-        <quarkus.platform.version>3.6.4</quarkus.platform.version>
+        <quarkus.platform.version>3.8.6</quarkus.platform.version>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <openapi-generator.version>7.4.0</openapi-generator.version>
         <lombok.version>1.18.38</lombok.version>
@@ -126,6 +126,19 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-reactive-pg-client</artifactId>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

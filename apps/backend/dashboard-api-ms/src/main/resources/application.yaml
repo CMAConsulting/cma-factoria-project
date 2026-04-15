@@ -30,11 +30,13 @@ quarkus:
   # Database Configuration
   datasource:
     db-kind: postgresql
+    username: ${DB_USER:factoria}
+    password: ${DB_PASSWORD}
     reactive:
-      postgresql:
-        url: ${DB_URL:postgresql://localhost:5432/dashboard_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+      url: postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:dashboard_db}
+      max-size: 20
+    devservices:
+      enabled: false
   hibernate-orm:
     database:
       generation: none

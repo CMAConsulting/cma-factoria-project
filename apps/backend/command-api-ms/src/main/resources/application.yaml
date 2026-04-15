@@ -30,16 +30,13 @@ quarkus:
   # Database Configuration
   datasource:
     db-kind: postgresql
+    username: ${DB_USER:factoria}
+    password: ${DB_PASSWORD}
     reactive:
-      postgresql:
-        url: ${DB_URL:postgresql://localhost:5432/command_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+      url: postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:command_db}
+      max-size: 20
     devservices:
       enabled: false
-  # Disable reactive client to use standard JDBC for dev without Docker
-  reactive:
-    enabled: false
 
 # MP JWT Configuration  
 mp:
