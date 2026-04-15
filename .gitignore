@@ -22,6 +22,8 @@ coverage/
 .cache/
 tmp/
 temp/
+.tmp/
+.temp/
 
 .classpath
 .factorypath

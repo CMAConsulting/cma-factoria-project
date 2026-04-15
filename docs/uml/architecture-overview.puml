@@ -1,0 +1,100 @@
+@startuml SYN-FactorIA-Architecture
+!theme plain
+skinparam componentStyle rectangle
+
+title SYN FactorIA - Arquitectura del Sistema
+
+package "Frontend Layer" <<Frame>> {
+    [mfe-principal\n:3000] as principal
+    [mfe-commands\n:3001] as commands
+    [mfe-settings\n:3002] as settings
+    [mfe-dashboard\n:3003] as dashboard
+}
+
+package "Shared APIs" <<Frame>> {
+    [shared-commands-api] as sharedCmd
+    [shared-settings-api] as sharedSet
+    [shared-dashboard-api] as sharedDash
+}
+
+package "Backend Layer" <<Frame>> {
+    [command-api-ms\n:8080] as cmdAPI
+    [settings-api-ms\n:8081] as setAPI
+    [dashboard-api-ms\n:8082] as dashAPI
+}
+
+package "Data Layer" <<Frame>> {
+    database "PostgreSQL\nCommands" as pgCmd
+    database "PostgreSQL\nSettings" as pgSet
+    database "PostgreSQL\nDashboard" as pgDash
+}
+
+package "AI Agents" <<Frame>> {
+    [Oscar\nOrquestador] as oscar
+    [Scout\nInvestigador] as scout
+    [Ivan\nImplementador] as ivan
+    [Jester\nQA] as jester
+}
+
+package "Contracts" <<Frame>> {
+    [commands.yaml] as cmdContract
+    [settings.yaml] as setContract
+    [dashboard.yaml] as dashContract
+}
+
+package "Infrastructure" <<Frame>> {
+    [Docker\nContainers] as docker
+    [CI/CD\nPipelines] as cicd
+}
+
+' Connections - Frontend to APIs
+principal --> commands : React.lazy()
+principal --> settings : React.lazy()
+principal --> dashboard : React.lazy()
+
+' Shared APIs to Backend
+sharedCmd --> cmdAPI : HTTP/REST
+sharedSet --> setAPI : HTTP/REST
+sharedDash --> dashAPI : HTTP/REST
+
+' Backend to Database
+cmdAPI --> pgCmd : Reactive PG
+setAPI --> pgSet : Reactive PG
+dashAPI --> pgDash : Reactive PG
+
+' Contracts to APIs
+cmdContract --> cmdAPI : OpenAPI Generator
+setContract --> setAPI : OpenAPI Generator
+dashContract --> dashAPI : OpenAPI Generator
+
+' Contracts to Shared APIs
+cmdContract --> sharedCmd : TypeScript Generator
+setContract --> sharedSet : TypeScript Generator
+dashContract --> sharedDash : TypeScript Generator
+
+' AI Agents interactions
+oscar --> scout : delega
+oscar --> ivan : delega
+oscar --> jester : delega
+scout --> ivan : spec
+ivan --> jester : valida
+jester --> oscar : reporte
+
+' Infrastructure
+cicd --> docker : deploy
+docker --> cmdAPI : containers
+docker --> setAPI : containers
+docker --> dashAPI : containers
+
+legend right
+|= Color |= Capa |= Descripción |
+| <back:#ADD8E6>Frontend</back> | Microfrontends React |
+| <back:#90EE90>Shared APIs</back> | TypeScript Client Libraries |
+| <back:#FFB6C1>Backend</back> | Microservicios Quarkus |
+| <back:#DDA0DD>Data</back> | PostgreSQL Reactivo |
+| <back:#FFD700>AI</back> | Agentes OpenCode/Claude |
+| <back:#F0E68C>Contracts</back> | OpenAPI Specifications |
+| <back:#E0E0E0>Infra</back> | Docker & CI/CD |
+endlegend
+
+@enduml

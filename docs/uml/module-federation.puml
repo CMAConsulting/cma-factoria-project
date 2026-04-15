@@ -1,0 +1,45 @@
+@startuml Module-Federation-Architecture
+!theme plain
+skinparam componentStyle rectangle
+
+title Module Federation - Arquitectura de Microfrontends
+
+package "Browser - Host Application" {
+    [mfe-principal\n:3000\nHost] as host
+}
+
+package "Browser - Remote MFEs (Lazy)" {
+    [mfe-commands\n:3001\nremoteEntry.js] as cmd
+    [mfe-settings\n:3002\nremoteEntry.js] as set
+    [mfe-dashboard\n:3003\nremoteEntry.js] as dash
+}
+
+package "Shared Dependencies" {
+    [React 18]
+    [shared-commands-api]
+    [shared-settings-api]
+    [shared-dashboard-api]
+}
+
+package "Backend Services" {
+    [command-api-ms\n:8080] as cmdApi
+    [settings-api-ms\n:8081] as setApi
+    [dashboard-api-ms\n:8082] as dashApi
+}
+
+host --> cmd : React.lazy()
+host --> set : React.lazy()
+host --> dash : React.lazy()
+
+cmd --> cmdApi : HTTP
+set --> setApi : HTTP
+dash --> dashApi : HTTP
+
+legend right
+  |= Elemento |= Descripción |
+  | Host (3000) | Aplicación principal que carga los MFEs |
+  | Remote (3001-3003) | Microfrontends cargados dinámicamente |
+  | Shared APIs | Clientes TypeScript generados desde OpenAPI |
+endlegend
+
+@enduml
