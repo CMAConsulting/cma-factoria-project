@@ -11,7 +11,7 @@ Microservicio REST para ejecución remota de comandos en el sistema CMA Factoria
 ## Stack Tecnológico
 
 - **Framework**: Quarkus 3.6.4
-- **Lenguaje**: Java 17
+- **Lenguaje**: Java 21
 - **API**: RESTEasy Reactive
 - **Generación**: OpenAPI Generator 7.4.0
 

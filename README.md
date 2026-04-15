@@ -6,7 +6,7 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 
 | Componente | Tecnología | Puerto |
 |------------|------------|--------|
-| Backend | Quarkus 3 (Java 17) + RESTEasy Reactive | 8080 |
+| Backend | Quarkus 3 (Java 21) + RESTEasy Reactive | 8080 |
 | MFE Principal | React 18 + Webpack Module Federation (host) | 3000 |
 | MFE Commands | React 18 + Module Federation (remote) | 3001 |
 | MFE Settings | React 18 + Module Federation (remote) | 3002 |
@@ -70,7 +70,7 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 ./scripts/frontend/local_start.sh
 ```
 
-**Requisitos:** Java 17+, Maven 3.9+, Node.js 18+, puertos 8080 / 3000 / 3001 / 3002 / 3003 libres.
+**Requisitos:** Java 21+, Maven 3.9+, Node.js 18+, puertos 8080 / 3000 / 3001 / 3002 / 3003 libres.
 
 Accede a: `http://localhost:3000`
 
