@@ -25,8 +25,8 @@
       </Arguments>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group">
-        <intProp name="ThreadGroup.num_threads">10000</intProp>
-        <intProp name="ThreadGroup.ramp_time">120</intProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(THREADS)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RAMP_UP_SECONDS)}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
@@ -37,22 +37,22 @@
       <hashTree>
         <kg.apc.jmeter.timers.VariableThroughputTimer guiclass="kg.apc.jmeter.timers.VariableThroughputTimerGui" testclass="kg.apc.jmeter.timers.VariableThroughputTimer" testname="jp@gc - Throughput Shaping Timer">
           <collectionProp name="load_profile">
-            <collectionProp name="-1980429684">
-              <stringProp name="1596796">4000</stringProp>
-              <stringProp name="1596796">4000</stringProp>
-              <stringProp name="48687">120</stringProp>
+            <collectionProp name="-1441061550">
+              <stringProp name="39189098">${__P(TARGET_RPS)}</stringProp>
+              <stringProp name="39189098">${__P(TARGET_RPS)}</stringProp>
+              <stringProp name="-622675102">${__P(TARGET_TIME_UP)}</stringProp>
             </collectionProp>
-            <collectionProp name="-1227052655">
-              <stringProp name="1596796">4000</stringProp>
+            <collectionProp name="-1828708132">
+              <stringProp name="39189098">${__P(TARGET_RPS)}</stringProp>
               <stringProp name="49">1</stringProp>
-              <stringProp name="1722">60</stringProp>
+              <stringProp name="-1876611351">${__P(TARGET_TIME_DOWN)}</stringProp>
             </collectionProp>
           </collectionProp>
         </kg.apc.jmeter.timers.VariableThroughputTimer>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/api/commands">
-          <stringProp name="HTTPSampler.domain">${host}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
+          <stringProp name="HTTPSampler.domain">${__P(HOST)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(PORT)}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/commands</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -111,7 +111,7 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <kg.apc.jmeter.vizualizers.CorrectedResultCollector guiclass="kg.apc.jmeter.vizualizers.ThreadsStateOverTimeGui" testclass="kg.apc.jmeter.vizualizers.CorrectedResultCollector" testname="jp@gc - Active Threads Over Time">
+        <kg.apc.jmeter.vizualizers.CorrectedResultCollector guiclass="kg.apc.jmeter.vizualizers.ThreadsStateOverTimeGui" testclass="kg.apc.jmeter.vizualizers.CorrectedResultCollector" testname="jp@gc - Active Threads Over Time" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
             <name>saveConfig</name>

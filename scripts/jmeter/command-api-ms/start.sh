@@ -11,6 +11,7 @@ source "$(get_project_dir)/scripts/commons/log.sh"
 PROFILE="dev"
 JMETER_FILE_ARG=""
 GUI_MODE=false
+CLEAR_MODE=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -24,6 +25,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --gui)
       GUI_MODE=true
+      shift
+      ;;
+    --clear)
+      CLEAR_MODE=true
       shift
       ;;
     *)
@@ -50,6 +55,14 @@ fi
 
 TMP_DIR="$(get_project_dir)/.tmp/jmeter/command-api-ms"
 mkdir -p "$TMP_DIR"
+
+if [[ "$CLEAR_MODE" == true ]]; then
+  log "INFO" "Limpiando archivos en: $TMP_DIR"
+  rm -f "$TMP_DIR"/*.jtl "$TMP_DIR"/*.log
+  rm -rf "$TMP_DIR"/*-dashboard
+  log "SUCCESS" "Archivos eliminados"
+  exit 0
+fi
 
 JMETER_EXTRA_ARGS=()
 JMETER_PROPS_FILE="$(get_project_dir)/tests/jmeter/command-api-ms/${PROFILE}.env"
