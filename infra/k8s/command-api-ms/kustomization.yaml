@@ -9,11 +9,6 @@ resources:
   - configmap.yaml
   - secret.yaml
 
-# Configuración de comunes
-commonLabels:
-  app: command-api-ms
-  environment: synopsis-ws
-
 # Patch para producción
 patches:
   - patch: |-
@@ -22,7 +17,7 @@ patches:
       metadata:
         name: command-api-ms
       spec:
-        replicas: 3
+        replicas: 5
         template:
           spec:
             containers:

@@ -30,13 +30,16 @@ SCRIPT_CONFIG_DIR="$SCRIPT_DIR"
 K8S_TMP_DIR="$SCRIPT_DIR/.tmp"
 
 # Archivos a copiar desde infra/k8s/command-api-ms
-K8S_FILES=("deployment.yaml" "service.yaml" "configmap.yaml" "secret.yaml")
+K8S_FILES=("deployment.yaml" "service.yaml" "configmap.yaml" "secret.yaml" "kustomization.yaml")
 
 # Variables a reemplazar en configmap.yaml
 CONFIGMAP_VARS=("DB_HOST" "DB_NAME" "HTTP_HOST" "HTTP_PORT" "CORS_ENABLED" "CORS_ORIGINS")
 
 # Variables a reemplazar en deployment.yaml
 DEPLOYMENT_VARS=("IMAGE_VERSION" "IMAGE_REGISTRY_SECRET" "IMAGE_REGISTRY_SERVER")
+
+# Variables a reemplazar en secret.yaml (se codifican en base64)
+SECRET_VARS=("DB_USER" "DB_PASSWORD")
 
 # ============================================
 # Funciones
@@ -177,6 +180,57 @@ replace_configmap_values() {
     log "SUCCESS" "Valores reemplazados en configmap.yaml"
 }
 
+# Reemplaza valores en secret.yaml (los valores se codifican en base64)
+replace_secret_values() {
+    local secret_file="${K8S_TMP_DIR}/secret.yaml"
+
+    if [[ ! -f "$secret_file" ]]; then
+        log "WARN" "secret.yaml no encontrado, omitiendo reemplazo"
+        return 0
+    fi
+
+    log "INFO" "Reemplazando valores en secret.yaml"
+
+    for var in "${SECRET_VARS[@]}"; do
+        local plain_value
+        plain_value=$(get_config_value "$var" "")
+
+        if [[ -z "$plain_value" ]]; then
+            log "WARN" "  $var no definido, se conserva el valor actual"
+            continue
+        fi
+
+        local encoded_value
+        encoded_value=$(echo -n "$plain_value" | base64)
+
+        sed -i "s|^  ${var}:.*|  ${var}: ${encoded_value}|" "$secret_file"
+        log "DEBUG" "  ${var}: [plain] -> [base64 encoded]"
+    done
+
+    log "SUCCESS" "Valores reemplazados en secret.yaml"
+}
+
+# Reemplaza el namespace en kustomization.yaml
+replace_kustomization_values() {
+    local kustomization_file="${K8S_TMP_DIR}/kustomization.yaml"
+
+    if [[ ! -f "$kustomization_file" ]]; then
+        log "WARN" "kustomization.yaml no encontrado, omitiendo reemplazo"
+        return 0
+    fi
+
+    local namespace
+    namespace=$(get_config_value "K8S_NAMESPACE" "synopsis-ws")
+
+    log "INFO" "Reemplazando valores en kustomization.yaml"
+
+    sed -i "s|^namespace:.*|namespace: ${namespace}|" "$kustomization_file"
+    sed -i "s|      environment:.*|      environment: ${namespace}|" "$kustomization_file"
+
+    log "DEBUG" "  namespace: ${namespace}"
+    log "SUCCESS" "Valores reemplazados en kustomization.yaml"
+}
+
 # Reemplaza valores en deployment.yaml
 replace_deployment_values() {
     local deployment_file="${K8S_TMP_DIR}/deployment.yaml"
@@ -245,8 +299,14 @@ main() {
     # Reemplazar valores en configmap
     replace_configmap_values
 
+    # Reemplazar valores en secret (base64)
+    replace_secret_values
+
     # Reemplazar valores en deployment
     replace_deployment_values
+
+    # Reemplazar namespace en kustomization
+    replace_kustomization_values
 
     log "INFO" "============================================"
     log "SUCCESS" "Configuración completada exitosamente"

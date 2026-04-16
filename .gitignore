@@ -24,6 +24,7 @@ tmp/
 temp/
 .tmp/
 .temp/
+java_*.hprof
 
 .classpath
 .factorypath

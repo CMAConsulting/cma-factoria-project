@@ -28,16 +28,9 @@ K8S_NAMESPACE="synopsis-ws"
 SCRIPT_CONFIG_DIR="$SCRIPT_DIR"
 ACTION="apply"
 LOG_LINES=20
+LOCAL_PORT=10001
 
 
-
-# Orden de aplicación de archivos (importante: secret primero, luego configmap, luego deployment, service)
-K8S_FILES_ORDER=(
-    "secret.yaml"
-    "configmap.yaml"
-    "deployment.yaml"
-    "service.yaml"
-)
 
 # ============================================
 # Funciones
@@ -60,6 +53,7 @@ OPCIONES:
     --logs LINEAS              Muestra logs estáticos del pod (default: 20 líneas)
     --events                    Muestra eventos del namespace
     --status                    Muestra estado de los recursos
+    --expose-to PUERTO          Expone el servicio localmente via port-forward (ej. 10001 → 8080)
     -h, --help                  Muestra esta ayuda
 
 Nota: Ejecutar configure.sh antes de este script.
@@ -96,14 +90,22 @@ parse_args() {
                 shift
                 ;;
             --tail)
-                LOG_LINES="$2"
                 ACTION="tail"
-                shift 2
+                if [[ $# -gt 1 && "$2" =~ ^[0-9]+$ ]]; then
+                    LOG_LINES="$2"
+                    shift 2
+                else
+                    shift
+                fi
                 ;;
             --logs)
-                LOG_LINES="$2"
                 ACTION="logs"
-                shift 2
+                if [[ $# -gt 1 && "$2" =~ ^[0-9]+$ ]]; then
+                    LOG_LINES="$2"
+                    shift 2
+                else
+                    shift
+                fi
                 ;;
             --events)
                 ACTION="events"
@@ -112,6 +114,11 @@ parse_args() {
             --status)
                 ACTION="status"
                 shift
+                ;;
+            --expose-to)
+                LOCAL_PORT="$2"
+                ACTION="expose"
+                shift 2
                 ;;
             -h|--help)
                 usage
@@ -194,41 +201,16 @@ check_cluster_connection() {
     fi
 }
 
-# Aplica un archivo YAML individual
-apply_yaml_file() {
-    local file="$1"
-    local filepath="${K8S_TMP_DIR}/${file}"
-
-    log "INFO" "Aplicando: $file"
-
-    if kubectl apply -f "$filepath" -n "$K8S_NAMESPACE"; then
-        log "SUCCESS" "Aplicado: $file"
-    else
-        log "ERROR" "Error al aplicar: $file"
-        return 1
-    fi
-}
-
-# Aplica todos los archivos YAML en orden
+# Aplica todos los recursos usando kustomize
 apply_all_yaml_files() {
-    log "INFO" "Aplicando recursos al namespace: $K8S_NAMESPACE"
+    log "INFO" "Aplicando recursos con kustomize desde: $K8S_TMP_DIR"
     log "INFO" "============================================"
 
-    local failed=0
-
-    for file in "${K8S_FILES_ORDER[@]}"; do
-        local filepath="${K8S_TMP_DIR}/${file}"
-        if [[ -f "$filepath" ]]; then
-            if ! apply_yaml_file "$file"; then
-                ((failed++))
-            fi
-        else
-            log "WARN" "Archivo no encontrado, omitiendo: $file"
-        fi
-    done
-
-    if [[ $failed -gt 0 ]]; then
-        handle_error "Falló la aplicación de $failed archivo(s)"
+    if kubectl apply -k "$K8S_TMP_DIR"; then
+        log "SUCCESS" "Recursos aplicados correctamente"
+    else
+        log "ERROR" "Error al aplicar recursos con kustomize"
+        return 1
     fi
 }
 
@@ -274,26 +256,33 @@ remove_all_resources() {
     log "SUCCESS" "Recursos eliminados"
 }
 
-# Obtiene nombre del pod
+# Obtiene nombre del primer pod
 get_pod_name() {
     kubectl get pods -n "$K8S_NAMESPACE" -l app=command-api-ms -o jsonpath='{.items[0].metadata.name}' 2>/dev/null
 }
 
-# Muestra logs estáticos del pod
+# Obtiene nombres de todos los pods del deployment
+get_pod_names() {
+    kubectl get pods -n "$K8S_NAMESPACE" -l app=command-api-ms -o jsonpath='{.items[*].metadata.name}' 2>/dev/null
+}
+
+# Muestra logs estáticos de todas las instancias del deployment
 show_pod_logs() {
     local lines="$1"
-    log "INFO" "Obteniendo logs del pod (últimas $lines líneas)..."
 
-    local pod_name
-    pod_name=$(get_pod_name)
+    local pod_names
+    pod_names=$(get_pod_names)
 
-    if [[ -z "$pod_name" ]]; then
+    if [[ -z "$pod_names" ]]; then
         log "WARN" "No se encontró ningún pod en namespace $K8S_NAMESPACE"
         return 0
     fi
 
-    log "INFO" "Pod: $pod_name"
-    kubectl logs "$pod_name" -n "$K8S_NAMESPACE" --tail="$lines"
+    for pod_name in $pod_names; do
+        log "INFO" "=== Pod: $pod_name ==="
+        kubectl logs "$pod_name" -n "$K8S_NAMESPACE" --tail="$lines"
+        echo ""
+    done
 }
 
 # Muestra logs en vivo del pod
@@ -317,6 +306,19 @@ tail_pod_logs() {
 show_namespace_events() {
     log "INFO" "Obteniendo eventos del namespace: $K8S_NAMESPACE"
     kubectl get events -n "$K8S_NAMESPACE" --sort-by='.lastTimestamp' | tail -30
+}
+
+# Expone el servicio localmente via port-forward
+expose_service() {
+    local local_port="$1"
+    local service_port=8080
+
+    log "INFO" "Exponiendo service/command-api-ms → localhost:${local_port} (service port: ${service_port})"
+    log "INFO" "Presiona Ctrl+C para detener el port-forward"
+
+    kubectl port-forward "service/command-api-ms" \
+        "${local_port}:${service_port}" \
+        -n "$K8S_NAMESPACE"
 }
 
 # Muestra estado de los recursos aprovisionados
@@ -385,6 +387,10 @@ main() {
         status)
             log "INFO" "Acción: STATUS"
             show_resource_status
+            ;;
+        expose)
+            log "INFO" "Acción: EXPOSE → localhost:${LOCAL_PORT}"
+            expose_service "$LOCAL_PORT"
             ;;
         *)
             log "INFO" "Acción: APPLY"
