@@ -34,7 +34,7 @@ quarkus:
     password: ${DB_PASSWORD}
     reactive:
       url: postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:command_db}
-      max-size: 20
+      max-size: ${DB_MAX_CONNECTION:5}
     devservices:
       enabled: false
 

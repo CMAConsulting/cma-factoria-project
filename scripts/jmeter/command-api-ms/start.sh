@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-load_env_vars "$PROFILE" "$SCRIPT_DIR"
+load_env_vars "$PROFILE" "$SCRIPT_DIR/.."
 
 JMETER_HOME=$(set_with_fallback "JMETER_HOME" "/usr/local/jmeter")
 TARGET_HOST=$(set_with_fallback "TARGET_HOST" "localhost")
@@ -52,7 +52,7 @@ TMP_DIR="$(get_project_dir)/.tmp/jmeter/command-api-ms"
 mkdir -p "$TMP_DIR"
 
 JMETER_EXTRA_ARGS=()
-JMETER_PROPS_FILE="$(get_project_dir)/tests/jmeter/command-api-ms/${PROFILE}.properties"
+JMETER_PROPS_FILE="$(get_project_dir)/tests/jmeter/command-api-ms/${PROFILE}.env"
 if [[ -f "$JMETER_PROPS_FILE" ]]; then
   JMETER_EXTRA_ARGS+=("-q" "$JMETER_PROPS_FILE")
   log "INFO" "Properties: $JMETER_PROPS_FILE"

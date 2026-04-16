@@ -29,7 +29,8 @@
       "Bash(curl -s http://localhost:8080/q/health)",
       "Bash(docker stop *)",
       "Bash(docker rm *)",
-      "Bash(bash *)"
+      "Bash(bash *)",
+      "Bash(chmod +x *)"
     ]
   }
 }

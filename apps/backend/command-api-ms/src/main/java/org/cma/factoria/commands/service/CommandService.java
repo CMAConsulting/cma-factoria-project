@@ -8,6 +8,7 @@ import org.cma.factoria.commands.model.*;
 import org.cma.factoria.commands.repository.CommandRepository;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +28,10 @@ public class CommandService {
     public Uni<CommandListResponse> listCommands(String status, String source, Integer limit, Integer offset) {
         int lim = limit != null ? limit : 20;
         int off = offset != null ? offset : 0;
-        
-        return repository.findAll(status, lim, off)
+
+        return Uni.createFrom().item(emptyResponse(lim, off));
+
+        /*return repository.findAll(status, lim, off)
             .map(list -> {
                 CommandListResponse response = new CommandListResponse();
                 response.setItems(list.stream().map(this::entityToResponse).toList());
@@ -36,7 +39,17 @@ public class CommandService {
                 response.setLimit(lim);
                 response.setOffset(off);
                 return response;
-            });
+            });*/
+    }
+
+    private CommandListResponse emptyResponse(int lim, int off) {
+        var list = Collections.<CommandResponse>emptyList();
+        CommandListResponse response = new CommandListResponse();
+        response.setItems(list);
+        response.setTotal(0);
+        response.setLimit(lim);
+        response.setOffset(off);
+        return response;
     }
 
     public Uni<CommandResponse> getCommand(String id) {

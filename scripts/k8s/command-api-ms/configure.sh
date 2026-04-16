@@ -33,7 +33,7 @@ K8S_TMP_DIR="$SCRIPT_DIR/.tmp"
 K8S_FILES=("deployment.yaml" "service.yaml" "configmap.yaml" "secret.yaml" "kustomization.yaml")
 
 # Variables a reemplazar en configmap.yaml
-CONFIGMAP_VARS=("DB_HOST" "DB_NAME" "HTTP_HOST" "HTTP_PORT" "CORS_ENABLED" "CORS_ORIGINS")
+CONFIGMAP_VARS=("DB_HOST" "DB_NAME" "DB_MAX_CONNECTION" "HTTP_HOST" "HTTP_PORT" "CORS_ENABLED" "CORS_ORIGINS")
 
 # Variables a reemplazar en deployment.yaml
 DEPLOYMENT_VARS=("IMAGE_VERSION" "IMAGE_REGISTRY_SECRET" "IMAGE_REGISTRY_SERVER")
