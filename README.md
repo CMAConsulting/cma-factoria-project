@@ -238,13 +238,29 @@ cd apps/frontend/shared-settings-api && npm run generate && npm run build
 # Instalar plugins (primera vez)
 bash scripts/jmeter/install.sh
 
-# Ejecutar plan de prueba de command-api-ms
+# Ejecutar escenario (perfil dev por defecto)
 bash scripts/jmeter/command-api-ms/start.sh
+
+# Ejecutar con perfil staging
+bash scripts/jmeter/command-api-ms/start.sh --profile staging
+
+# Ejecutar escenario específico
+bash scripts/jmeter/command-api-ms/start.sh --jmeter-file scenarie-001
+
+# Abrir en modo GUI
+bash scripts/jmeter/command-api-ms/start.sh --gui
+
+# Limpiar resultados anteriores
+bash scripts/jmeter/command-api-ms/start.sh --clear
+
+# Generar dashboard HTML desde el último .jtl
+bash scripts/jmeter/command-api-ms/dashboard.sh
+bash scripts/jmeter/command-api-ms/dashboard.sh --jmeter-file scenarie-001
 ```
 
-Objetivos de rendimiento: ≥7.260 TPS sostenidos, ≥14.500 TPS en burst, latencia P99 ≤ 500 ms.
+Resultados en `.tmp/jmeter/command-api-ms/`. Objetivo: 14.500 TPS, error rate 0%, latencia P99 ≤ 500 ms.
 
-Ver: [docs/jmeter/jmeter-command-api-ms.md](docs/jmeter/jmeter-command-api-ms.md)
+Ver: [docs/test/jmeter/command-api-ms.md](docs/test/jmeter/command-api-ms.md)
 
 ## Agentes
 
@@ -311,7 +327,7 @@ cd .opencode && npm install
 | [k8s.md](docs/scripts/k8s.md) | Scripts Kubernetes — configure, deploy |
 | [backend.md](docs/scripts/backend.md) | Scripts de desarrollo local backend |
 | [frontend.md](docs/scripts/frontend.md) | Scripts de desarrollo local frontend |
-| [jmeter-command-api-ms.md](docs/jmeter/jmeter-command-api-ms.md) | Plan de pruebas de carga |
+| [command-api-ms.md](docs/test/jmeter/command-api-ms.md) | Plan de pruebas de carga JMeter |
 | [adr-001](docs/architecture/adr-001-canal-comandos-remotos.md) | ADR: Canal de comandos remotos |
 | [cma-factoria.tex](docs/latex/cma-factoria.tex) | Documento LaTeX (PDF) |
 

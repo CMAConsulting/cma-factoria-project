@@ -17,7 +17,8 @@ scripts/jmeter/
 ├── profile.env.example
 ├── plugins/                      # JARs copiados por install.sh
 └── command-api-ms/
-    ├── start.sh                  # Script de ejecución
+    ├── start.sh                  # Ejecuta el test plan
+    ├── dashboard.sh              # Genera dashboard HTML desde el .jtl
     └── dev.env                   # Variables del perfil command-api-ms
 ```
 
@@ -83,6 +84,9 @@ bash scripts/jmeter/command-api-ms/start.sh --jmeter-file scenarie-001
 
 # Modo GUI (abre interfaz gráfica)
 bash scripts/jmeter/command-api-ms/start.sh --gui
+
+# Limpiar resultados anteriores (.jtl, .log, dashboards)
+bash scripts/jmeter/command-api-ms/start.sh --clear
 ```
 
 ### Argumentos de `start.sh`
@@ -92,6 +96,7 @@ bash scripts/jmeter/command-api-ms/start.sh --gui
 | `-p`, `--profile` | Perfil a usar (default: `dev`) |
 | `--jmeter-file` | Nombre del `.jmx` sin extensión (default: desde env o `scenarie-001`) |
 | `--gui` | Abre JMeter en modo gráfico (omite `-n`) |
+| `--clear` | Elimina `.jtl`, `.log` y carpetas `*-dashboard` de `.tmp/` y sale |
 
 ### JVM
 
@@ -112,12 +117,33 @@ Los archivos de salida se escriben en `.tmp/jmeter/command-api-ms/`:
 | `{jmeter-file}.jtl` | Resultados de las muestras (CSV) |
 | `{jmeter-file}.log` | Log de ejecución de JMeter |
 
-Para generar un dashboard HTML desde el `.jtl`:
+---
+
+## Dashboard
+
+Genera un reporte HTML interactivo a partir del `.jtl`:
 
 ```bash
-$JMETER_HOME/bin/jmeter -g .tmp/jmeter/command-api-ms/scenarie-001.jtl \
-  -o .tmp/jmeter/command-api-ms/dashboard
+# Escenario por defecto (scenarie-001)
+bash scripts/jmeter/command-api-ms/dashboard.sh
+
+# Escenario específico
+bash scripts/jmeter/command-api-ms/dashboard.sh --jmeter-file scenarie-001
+
+# Con perfil distinto (para resolver JMETER_HOME)
+bash scripts/jmeter/command-api-ms/dashboard.sh --profile staging
 ```
+
+### Argumentos de `dashboard.sh`
+
+| Argumento | Descripción |
+|-----------|-------------|
+| `-p`, `--profile` | Perfil a usar para resolver `JMETER_HOME` (default: `dev`) |
+| `--jmeter-file` | Nombre del `.jtl` sin extensión (default: desde env o `scenarie-001`) |
+
+El dashboard se genera en `.tmp/jmeter/command-api-ms/{jmeter-file}-dashboard/index.html`. Si ya existe un dashboard previo para ese escenario lo elimina antes de regenerar.
+
+El script falla con error explícito si el `.jtl` no existe o solo contiene la cabecera (test sin muestras).
 
 ---
 
