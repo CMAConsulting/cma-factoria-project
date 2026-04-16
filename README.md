@@ -19,12 +19,11 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 
 ```
 .
-├── CLAUDE.md                        # Contexto del proyecto para Claude Code
-├── README.md
-│
 ├── apps/
 │   ├── backend/
-│   │   └── command-service/         # Microservicio Quarkus (puerto 8080)
+│   │   ├── command-api-ms/          # Microservicio Quarkus native (puerto 8080)
+│   │   ├── dashboard-api-ms/        # Microservicio dashboard (puerto 8081)
+│   │   └── settings-api-ms/         # Microservicio settings (puerto 8082)
 │   └── frontend/
 │       ├── mfe-principal/           # Host MFE — navegación y layout (3000)
 │       ├── mfe-commands/            # Remote MFE — gestión de comandos (3001)
@@ -40,30 +39,51 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 │       ├── dashboard.yaml           # Contrato API de dashboard
 │       └── settings.yaml           # Contrato API de configuración
 │
+├── infra/
+│   ├── database/
+│   │   ├── command-db/              # Tablas y stored procedures de commands
+│   │   ├── dashboard-db/            # Tablas y stored procedures de dashboard
+│   │   └── settings-db/             # Tablas y stored procedures de settings
+│   ├── docker/
+│   │   └── command-docker/
+│   │       └── Dockerfile           # Multi-stage build: Mandrel → UBI micro
+│   └── k8s/
+│       └── command-api-ms/
+│           ├── deployment.yaml
+│           ├── service.yaml
+│           ├── configmap.yaml
+│           ├── secret.yaml
+│           └── kustomization.yaml
+│
 ├── scripts/
-│   ├── backend/
-│   │   ├── local_start.sh
-│   │   └── local_stop.sh
-│   └── frontend/
-│       ├── local_start.sh
-│       └── local_stop.sh
+│   ├── commons/                     # Funciones reutilizables (log, get, check, wait)
+│   ├── backend/                     # local_start.sh / local_stop.sh
+│   ├── frontend/                    # local_start.sh / local_stop.sh
+│   ├── docker/
+│   │   ├── backend/
+│   │   │   ├── modules/             # container.sh, image.sh
+│   │   │   └── command-api-ms/      # build.sh, run.sh
+│   │   └── database/
+│   │       ├── modules/             # postgres.sh, volume.sh
+│   │       └── postgresql.sh
+│   ├── k8s/
+│   │   └── command-api-ms/          # configure.sh, run.sh
+│   ├── database/                    # impact_*.sh — aplica SQL al esquema
+│   ├── jmeter/                      # install.sh, command-api-ms/start.sh
+│   └── latex/                       # compile-pdf.sh, compile-puml.sh
 │
-├── docs/                            # Documentación técnica
-│   ├── architecture/                # ADRs
-│   ├── backend/
-│   ├── frontend/
-│   ├── history/
-│   ├── latex/
-│   └── scripts/
+├── tests/
+│   └── jmeter/                      # Planes de prueba .jmx
 │
-├── .opencode/                       # Configuración OpenCode
-│   ├── agent/                       # 9 agentes especializados
-│   ├── skills/                      # Conocimiento especializado
-│   └── hooks/                       # Validaciones pre-commit
-│
-├── .claude/                         # Configuración Claude Code
-│   ├── agents/                      # Alias de agentes
-│   └── commands/                    # Skills como slash commands
+└── docs/                            # Documentación técnica
+    ├── architecture/                # ADRs e integraciones
+    ├── backend/                     # APIs REST por servicio
+    ├── database/                    # Esquemas por base de datos
+    ├── frontend/                    # MFEs y shared APIs
+    ├── scripts/                     # Guías de scripts
+    ├── jmeter/                      # Pruebas de carga
+    ├── sequence/                    # Diagramas PlantUML
+    └── uml/                         # Diagramas de arquitectura
 ```
 
 ## Desarrollo local
@@ -76,9 +96,112 @@ Sistema de automatización para ejecución remota de comandos con arquitectura d
 ./scripts/frontend/local_start.sh
 ```
 
-**Requisitos:** Java 21+, Maven 3.9+, Node.js 18+, puertos 8080 / 3000 / 3001 / 3002 / 3003 libres.
+**Requisitos:** Java 21+, Maven 3.9+, Node.js 18+, puertos 8080 / 3000–3003 libres.
 
 Accede a: `http://localhost:3000`
+
+## Build del microservicio
+
+### JVM (rápido, para desarrollo)
+
+```bash
+cd apps/backend/command-api-ms
+./mvnw clean package -DskipTests
+```
+
+### Nativo (producción)
+
+Genera un ejecutable Linux nativo usando el contenedor Mandrel. Requiere Docker.
+
+```bash
+cd apps/backend/command-api-ms
+./mvnw package -Pnative -DskipTests -Dquarkus.native.container-build=true
+# Resultado: target/command-api-ms-1.0.0-SNAPSHOT-runner (~65 MB, arranque ~14 ms)
+```
+
+## Docker
+
+### Build de imagen nativa
+
+```bash
+# Construye la imagen multi-stage (Mandrel builder → UBI micro)
+bash scripts/docker/backend/command-api-ms/build.sh
+
+# Con perfil específico
+bash scripts/docker/backend/command-api-ms/build.sh --profile staging
+
+# Build + push al registry
+bash scripts/docker/backend/command-api-ms/build.sh --upload
+```
+
+### Gestión del contenedor
+
+```bash
+bash scripts/docker/backend/command-api-ms/run.sh --start
+bash scripts/docker/backend/command-api-ms/run.sh --stop
+bash scripts/docker/backend/command-api-ms/run.sh --remove
+bash scripts/docker/backend/command-api-ms/run.sh --logs        # últimas 20 líneas
+bash scripts/docker/backend/command-api-ms/run.sh --logs 50
+bash scripts/docker/backend/command-api-ms/run.sh --tail        # seguir logs en vivo
+```
+
+### Base de datos PostgreSQL (Docker)
+
+```bash
+bash scripts/docker/database/postgresql.sh init     # crea volumen y contenedor
+bash scripts/docker/database/postgresql.sh start
+bash scripts/docker/database/postgresql.sh stop
+bash scripts/docker/database/postgresql.sh status
+bash scripts/docker/database/postgresql.sh test     # valida conectividad
+bash scripts/docker/database/postgresql.sh remove
+```
+
+Ver: [docs/scripts/docker.md](docs/scripts/docker.md)
+
+## Kubernetes
+
+### Configurar manifiestos
+
+Genera los YAMLs con los valores del perfil seleccionado:
+
+```bash
+bash scripts/k8s/command-api-ms/configure.sh --profile dev
+bash scripts/k8s/command-api-ms/configure.sh --profile prod
+```
+
+### Despliegue
+
+```bash
+bash scripts/k8s/command-api-ms/run.sh apply       # despliega todos los recursos
+bash scripts/k8s/command-api-ms/run.sh status      # estado de pods y deployment
+bash scripts/k8s/command-api-ms/run.sh logs        # logs del pod activo
+bash scripts/k8s/command-api-ms/run.sh tail        # seguir logs en vivo
+bash scripts/k8s/command-api-ms/run.sh events      # eventos recientes
+bash scripts/k8s/command-api-ms/run.sh stop        # escala a 0 réplicas
+bash scripts/k8s/command-api-ms/run.sh remove      # elimina todos los recursos
+```
+
+El namespace de despliegue es `synopsis-ws` (configurable en `kustomization.yaml`).
+
+Ver: [docs/scripts/k8s.md](docs/scripts/k8s.md)
+
+## Base de datos
+
+Los esquemas SQL viven en `infra/database/`. Para aplicarlos al contenedor activo:
+
+```bash
+bash scripts/database/impact_command_db.sh
+bash scripts/database/impact_dashboard_db.sh
+bash scripts/database/impact_settings_db.sh
+```
+
+Estructura de cada base:
+
+| Base | Tablas | Stored Procedures |
+|------|--------|-------------------|
+| `command_db` | `commands`, `command_results` | 5 SPs (insert, get, list, result, count) |
+| `dashboard_db` | `dashboard_metrics`, `dashboard_activity` | 2 SPs |
+| `settings_db` | `settings_general`, `settings_api_config` | 2 SPs |
 
 ## Arquitectura Module Federation
 
@@ -89,11 +212,14 @@ mfePrincipal (3000)
   └── mfeDashboard → http://localhost:3003/remoteEntry.js
 ```
 
-El MFE Principal actúa como host. Los MFEs remotos se cargan de forma lazy con `React.lazy()`.
+El MFE Principal actúa como host con `eager: true` en dependencias compartidas. Los MFEs remotos usan el patrón bootstrap obligatorio (`index.tsx` → dynamic import → `bootstrap.tsx`).
 
 ## Contratos OpenAPI
 
-Las especificaciones OpenAPI viven en `contracts/openapi/`. Cada contrato tiene su propia shared-api:
+`contracts/openapi/` es la única fuente de verdad del contrato. Se consume en dos direcciones:
+
+- **Backend:** `./mvnw clean compile` genera modelos Java en `target/generated-sources/`
+- **Frontend:** `npm run generate` en cada `shared-*-api/` genera el cliente TypeScript
 
 ```bash
 # Commands
@@ -106,32 +232,33 @@ cd apps/frontend/shared-dashboard-api && npm run generate && npm run build
 cd apps/frontend/shared-settings-api && npm run generate && npm run build
 ```
 
-Los MFEs importan desde su shared-api correspondiente:
-- `mfe-commands` → `@cma-factoria/shared-commands-api`
-- `mfe-dashboard` → `@cma-factoria/shared-dashboard-api`
-- `mfe-settings` → `@cma-factoria/shared-settings-api`
+## Pruebas de carga (JMeter)
 
-## Agentes OpenCode
+```bash
+# Instalar plugins (primera vez)
+bash scripts/jmeter/install.sh
 
-El proyecto tiene 9 agentes especializados en `.opencode/agent/`:
+# Ejecutar plan de prueba de command-api-ms
+bash scripts/jmeter/command-api-ms/start.sh
+```
 
-| Agente | Rol | Responsabilidades |
-|--------|-----|------------------|
-| **Product Owner** | Orquestador | Coordina el SDLC, delega tareas, mantiene trazabilidad |
-| **Optimizer** | Investigador | Analiza código, genera SPEC.md, documenta estructura |
-| **Dev Senior** | Implementador | Código siguiendo SPEC.md, sigue patrones del proyecto |
-| **Backend Senior** | Implementador Backend | Quarkus/Java, CORS, PostgreSQL, troubleshooting |
-| **Frontend Senior** | Implementador Frontend | React/TypeScript/MFEs, Module Federation |
-| **QA Senior** | Validador | Pruebas adversariales, builds, compliance |
-| **Database Operator** | Ingeniero BD | Tablas, stored procedures, índices PostgreSQL |
-| **Bash Specialist** | Script Developer | Scripts Bash, soporte --profile, scripts/commons/ |
-| **UML-Spec** | Modelador | Diagramas UML PlantUML, conversión OpenAPI |
+Objetivos de rendimiento: ≥7.260 TPS sostenidos, ≥14.500 TPS en burst, latencia P99 ≤ 500 ms.
 
-La definición canónica de cada agente está en `.opencode/agent/`.
+Ver: [docs/jmeter/jmeter-command-api-ms.md](docs/jmeter/jmeter-command-api-ms.md)
+
+## Agentes
+
+| Agente | Rol | Cuándo usarlo |
+|--------|-----|---------------|
+| **Oscar** | Orquestador | Features completos que necesitan scout→ivan→jester |
+| **Scout** | Investigador | Analizar código y generar SPEC.md |
+| **Ivan** | Implementador | Escribir código según un plan/SPEC |
+| **Jester** | QA / Validador | Verificar builds, puertos y compliance con SPEC |
+| **DBForge** | Base de datos | Crear o modificar tablas, SPs e índices PostgreSQL |
+
+Definidos en `.claude/agents/`. La fuente canónica está en `.opencode/agent/`.
 
 ## Slash Commands
-
-Disponibles como `/comando` en Claude Code (`.claude/commands/`):
 
 | Comando | Propósito |
 |---------|-----------|
@@ -141,125 +268,56 @@ Disponibles como `/comando` en Claude Code (`.claude/commands/`):
 | `/microfrontends-setup` | Configuración Module Federation |
 | `/react-typescript` | Componentes y tipos React + TypeScript |
 
-La definición canónica de cada skill está en `.opencode/skills/`.
-
 ## Instalación de herramientas AI
 
 ### Claude Code
 
-CLI oficial de Anthropic para interactuar con Claude directamente desde la terminal.
-
-**Requisitos:** Node.js 18+, suscripción Claude Pro/Max/Team o cuenta en Anthropic Console.
-
 ```bash
 # macOS / Linux / WSL
 curl -fsSL https://claude.ai/install.sh | bash
-
-# macOS (Homebrew)
-brew install --cask claude-code
-
-# Windows (PowerShell)
-irm https://claude.ai/install.ps1 | iex
 ```
-
-**Primer uso:**
 
 ```bash
-claude        # abre la sesión — solicita login automáticamente en el primer arranque
+claude  # abre la sesión — solicita login automáticamente en el primer arranque
 ```
-
-Las credenciales quedan almacenadas localmente. Para cambiar de cuenta: `/login` dentro de Claude Code.
-
-El proyecto incluye configuración lista en `.claude/` (agentes, comandos) y `CLAUDE.md` (contexto del proyecto). Al abrir Claude Code en este directorio, todo el contexto se carga automáticamente.
-
----
 
 ### OpenCode
 
-TUI de código abierto para desarrollo asistido por IA. Soporta múltiples proveedores (Anthropic, OpenAI, Google, etc.).
-
-**Requisitos:** Terminal con soporte true color y Unicode (recomendados: WezTerm, Ghostty, Kitty, iTerm2).
-
 ```bash
-# macOS / Linux
 curl -fsSL https://opencode.ai/install | bash
-
-# npm (cualquier plataforma)
-npm install -g opencode-ai@latest
-
-# macOS (Homebrew)
-brew install opencode
-
-# Windows (Scoop)
-scoop install opencode
+opencode auth login
 ```
-
-**Primer uso:**
 
 ```bash
-opencode             # abre el TUI
-opencode auth login  # configura el proveedor LLM y API key
+# Instalar plugins del proyecto (solo la primera vez)
+cd .opencode && npm install
 ```
-
-**Instalar plugins del proyecto** (solo la primera vez):
-
-```bash
-cd .opencode
-npm install
-```
-
-El proyecto incluye configuración en `.opencode/` — agentes (9 roles especializados), skills (`skills/`) y hooks (`hooks/`) se cargan automáticamente al abrir OpenCode en este directorio.
-
----
 
 ## Documentación
 
 | Documento | Contenido |
 |-----------|-----------|
-| [cma-factoria.tex](docs/latex/cma-factoria.tex) | Documento LaTeX para presentaciones (PDF) |
-| [references.bib](docs/latex/references.bib) | Bibliografía BibTeX con 15 referencias académicas |
-| [command-service.md](docs/backend/command-service.md) | Backend REST API — comandos |
+| [command-api-ms.md](docs/backend/command-api-ms.md) | Backend REST API — comandos |
 | [dashboard-service.md](docs/backend/dashboard-service.md) | Backend REST API — dashboard |
 | [settings-service.md](docs/backend/settings-service.md) | Backend REST API — configuración |
+| [command-db.md](docs/database/command-db.md) | Esquema command_db |
+| [dashboard-db.md](docs/database/dashboard-db.md) | Esquema dashboard_db |
+| [settings-db.md](docs/database/settings-db.md) | Esquema settings_db |
 | [mfe-principal.md](docs/frontend/mfe-principal.md) | MFE Principal (host) |
 | [mfe-commands.md](docs/frontend/mfe-commands.md) | MFE Commands |
 | [mfe-settings.md](docs/frontend/mfe-settings.md) | MFE Settings |
 | [mfe-dashboard.md](docs/frontend/mfe-dashboard.md) | MFE Dashboard |
-| [shared-commands-api.md](docs/frontend/shared-commands-api.md) | Shared Commands API |
-| [shared-dashboard-api.md](docs/frontend/shared-dashboard-api.md) | Shared Dashboard API |
-| [shared-settings-api.md](docs/frontend/shared-settings-api.md) | Shared Settings API |
-| [adr-001](docs/architecture/adr-001-canal-comandos-remotos.md) | Decisión: Canal de comandos remotos |
-| [scripts/backend.md](docs/scripts/backend.md) | Scripts de backend |
-| [scripts/frontend.md](docs/scripts/frontend.md) | Scripts de frontend |
+| [docker.md](docs/scripts/docker.md) | Scripts Docker — build, run, postgresql |
+| [k8s.md](docs/scripts/k8s.md) | Scripts Kubernetes — configure, deploy |
+| [backend.md](docs/scripts/backend.md) | Scripts de desarrollo local backend |
+| [frontend.md](docs/scripts/frontend.md) | Scripts de desarrollo local frontend |
+| [jmeter-command-api-ms.md](docs/jmeter/jmeter-command-api-ms.md) | Plan de pruebas de carga |
+| [adr-001](docs/architecture/adr-001-canal-comandos-remotos.md) | ADR: Canal de comandos remotos |
+| [cma-factoria.tex](docs/latex/cma-factoria.tex) | Documento LaTeX (PDF) |
 
-### Compilación del Documento LaTeX
+### Compilación LaTeX
 
 ```bash
 cd docs/latex
-pdflatex cma-factoria.tex
-biber cma-factoria
-pdflatex cma-factoria.tex
-pdflatex cma-factoria.tex
+pdflatex cma-factoria.tex && biber cma-factoria && pdflatex cma-factoria.tex
 ```
-
-### Referencias Académicas Verificadas
-
-El documento LaTeX incluye 15 referencias académicas con enlaces verificados:
-
-| # | Referencia | URL |
-|---|-----------|-----|
-| 1 | Peng et al. (2023) - GitHub Copilot Impact | [arXiv:2302.06590](https://arxiv.org/abs/2302.06590) |
-| 2 | Cui et al. (2024) - Field Experiment | [MIT PubPub](https://mit-genai.pubpub.org/pub/v5iixksv/release/2) |
-| 3 | Ziegler et al. (2024) - CACM | [ACM CACM](https://cacm.acm.org/research/measuring-github-copilots-impact-on-productivity/) |
-| 4 | Smit et al. (2024) - AMCIS BMW | [AISNet](https://aisel.aisnet.org/amcis2024/ai_aa/ai_aa/10) |
-| 5 | Pandey (2024) - Real-World Projects | [NASA ADS](https://ui.adsabs.harvard.edu/abs/2024arXiv240617910P/abstract) |
-| 6 | Trandafir (2024) - Vertical Slice | [Baeldung](https://www.baeldung.com/java-vertical-slice-architecture) |
-| 7 | Yakhin (2024) - Comparative Review | [IJAIR](https://aimjournals.com/index.php/ijaair/article/view/413) |
-| 8 | Mane et al. (2024) - Micro Frontends | [ResearchGate](https://www.researchgate.net/publication/388841942) |
-| 9 | Antunes (2024) - SBES Migration | [arXiv:2407.15829](https://arxiv.org/pdf/2407.15829) |
-| 10 | Lando & Hasselbring (2025) - BIMF | [arXiv:2501.18225](https://arxiv.org/abs/2501.18225) |
-| 11 | Hossain (2026) - Contract-First API | [mdsanwarhossain.me](https://mdsanwarhossain.me/blog-contract-first-openapi.html) |
-| 12 | Sturgeon (2025) - OpenAPI Workflow | [Bump.sh](https://docs.bump.sh/guides/openapi/specification/v3.1/the-perfect-modern-openapi-workflow) |
-| 13 | Franchin (2025) - Quarkus Benchmark | [ITNEXT](https://itnext.io/performance-benchmark-spring-boot-3-4-3-vs-quarkus-3-19-3-vs-micronaut-4-7-6-aaadfb0382b4) |
-| 14 | Microsoft (2024) - Magentic-One | [MSR](https://www.microsoft.com/en-us/research/publication/magentic-one-a-generalist-multi-agent-system-for-solving-complex-tasks/) |
-| 15 | He et al. (2025) - LLM Multi-Agent SE | [arXiv:2404.04834](https://arxiv.org/pdf/2404.04834) |
