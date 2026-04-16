@@ -14,7 +14,16 @@
       "Bash(mvn clean:*)",
       "Bash(mvn generate-sources:*)",
       "Bash(git -C /mnt/disco_1/servers/microk8s.cmaconsulting.org/home/elperez/fuentes/cma-factoria-project status --short)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(microk8s.kubectl get *)",
+      "Bash(kubectl get *)",
+      "Bash(kubectl logs *)",
+      "Bash(kubectl describe *)",
+      "Bash(docker --version)",
+      "Bash(podman --version)",
+      "Bash(./mvnw package *)",
+      "WebFetch(domain:quarkus.io)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

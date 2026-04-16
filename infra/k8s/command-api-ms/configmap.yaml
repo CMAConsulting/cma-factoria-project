@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: command-api-config
+  labels:
+    app: command-api-ms
+data:
+  DB_HOST: "command-db-service"
+  DB_NAME: "command_db"
+  HTTP_HOST: "0.0.0.0"
+  HTTP_PORT: "8080"
+  CORS_ENABLED: "true"
+  CORS_ORIGINS: "http://localhost:3000"

@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: command-api-ms
+  labels:
+    app: command-api-ms
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: command-api-ms
+  template:
+    metadata:
+      labels:
+        app: command-api-ms
+        version: v1
+    spec:
+      imagePullSecrets:
+        - name: synopsis-registry-secret
+      containers:
+        - name: command-api-ms
+          image: registry.synopsis.cloud/command-api-ms:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          env:
+            # HTTP Configuration
+            - name: HTTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: command-api-config
+                  key: HTTP_HOST
+            - name: HTTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: command-api-config
+                  key: HTTP_PORT
+            # CORS Configuration
+            - name: CORS_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: command-api-config
+                  key: CORS_ENABLED
+            - name: CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: command-api-config
+                  key: CORS_ORIGINS
+            # Database Configuration
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: command-api-config
+                  key: DB_HOST
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: command-api-config
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: command-api-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: command-api-secrets
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30

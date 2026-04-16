@@ -40,13 +40,20 @@ load_env_vars() {
 
 # Función para asignar variable con fallback completo
 # Uso: VAR=$(set_with_fallback "VAR_NAME" "inline_default")
-# Prioridad: 1) ENV_* del archivo dev.env, 2) Valor inline
+# Prioridad: 1) Variable con prefijo ENV_ (ENV_VAR_NAME), 2) Variable directamente definida, 3) Valor inline
 set_with_fallback() {
   local var_name="$1"
   local inline_default="$2"
+  
+  # Primero buscar con prefijo ENV_
   local env_var="ENV_${var_name}"
   local env_value="${!env_var:-}"
   
-  # Usar ENV_* del perfil o el valor inline
+  # Si no existe, buscar sin prefijo
+  if [[ -z "$env_value" ]]; then
+    env_value="${!var_name:-}"
+  fi
+  
+  # Usar valor encontrado o el default inline
   echo "${env_value:-$inline_default}"
 }
