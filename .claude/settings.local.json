@@ -23,7 +23,13 @@
       "Bash(podman --version)",
       "Bash(./mvnw package *)",
       "WebFetch(domain:quarkus.io)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(bash scripts/docker/command-api-ms/build.sh --profile dev)",
+      "Bash(docker run *)",
+      "Bash(curl -s http://localhost:8080/q/health)",
+      "Bash(docker stop *)",
+      "Bash(docker rm *)",
+      "Bash(bash *)"
     ]
   }
 }
